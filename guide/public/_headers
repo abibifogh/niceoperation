@@ -1,0 +1,9 @@
+# The guide fetches nothing from anywhere: fonts are embedded as data URIs and
+# there is no analytics, no CDN, no tracker. That lets the policy below be
+# about as tight as a policy with JavaScript in it can be.
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+  Cache-Control: public, max-age=600

@@ -1,0 +1,20 @@
+{
+  // How the guest field guide gets published.
+  //
+  // This is a second, separate Cloudflare project from the one that publishes
+  // niceoperation.com. They share a repository and nothing else: this one is
+  // guest-facing and belongs to the hostel, that one is the software suite.
+  //
+  // Project name: hostelaccra-guide
+  // Build command: (leave empty)
+  // Deploy command: npx wrangler deploy --config guide/wrangler.jsonc
+  // Custom domain: guide.hostelaccra.com
+  "name": "hostelaccra-guide",
+  "compatibility_date": "2025-01-01",
+
+  // Assets only. There is no server, no build and no framework — the guide is
+  // one HTML file with its data, styles, fonts and behaviour inside it.
+  "assets": {
+    "directory": "./public"
+  }
+}
