@@ -4,11 +4,11 @@
   // This is a second, separate Cloudflare project from the one that publishes
   // niceoperation.com. They share a repository and nothing else: this one is
   // guest-facing and belongs to the hostel, that one is the software suite.
+  // Keeping them apart means a bad deploy of one cannot take the other down.
   //
   // Project name: hostelaccra-guide
   // Build command: (leave empty)
   // Deploy command: npx wrangler deploy --config guide/wrangler.jsonc
-  // Custom domain: guide.hostelaccra.com
   "name": "hostelaccra-guide",
   "compatibility_date": "2025-01-01",
 
@@ -16,5 +16,25 @@
   // one HTML file with its data, styles, fonts and behaviour inside it.
   "assets": {
     "directory": "./public"
-  }
+  },
+
+  // The subdomain. Declaring it here rather than clicking it into the
+  // dashboard means `wrangler deploy` creates the DNS record and orders the
+  // certificate itself, and that the address lives in version control next to
+  // the thing it points at.
+  //
+  // This requires hostelaccra.com to be a zone in the same Cloudflare account.
+  // If the domain's nameservers are still with the registrar or another host,
+  // move them to Cloudflare first — until then, delete this "routes" block and
+  // deploy; the guide will be live on the workers.dev address below and the
+  // subdomain can be attached later without republishing.
+  "routes": [
+    { "pattern": "guide.hostelaccra.com", "custom_domain": true }
+  ],
+
+  // Keeps hostelaccra-guide.<your-subdomain>.workers.dev working as well, which
+  // is worth having: it is the address to test against before the DNS record
+  // has finished propagating, and the fallback if the custom domain is ever
+  // misconfigured.
+  "workers_dev": true
 }

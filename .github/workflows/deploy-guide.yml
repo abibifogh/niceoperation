@@ -1,0 +1,71 @@
+# Publishes the guest field guide to Cloudflare.
+#
+# This only runs when something under guide/ changes, so ordinary work on
+# niceoperation.com never triggers a guest-facing deploy.
+#
+# It needs two repository secrets. Settings → Secrets and variables → Actions:
+#
+#   CLOUDFLARE_API_TOKEN   A token created at
+#                          https://dash.cloudflare.com/profile/api-tokens
+#                          Permissions: Account → Workers Scripts → Edit,
+#                                       Zone   → DNS            → Edit,
+#                                       Zone   → Workers Routes → Edit
+#                          Scope it to this account and to the hostelaccra.com
+#                          zone only. Do not use a Global API Key.
+#   CLOUDFLARE_ACCOUNT_ID  Shown in the right-hand column of the Cloudflare
+#                          dashboard overview page.
+#
+# Until both are set the job reports "not configured" and passes, so the
+# checks stay green rather than failing on every push.
+
+name: Deploy field guide
+
+on:
+  push:
+    branches: [main]
+    paths: ['guide/**', '.github/workflows/deploy-guide.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-guide
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the guide is intact before publishing it
+        run: |
+          f=guide/public/index.html
+          test -f "$f" || { echo "::error::$f is missing"; exit 1; }
+          grep -q '</html>' "$f" || { echo "::error::$f looks truncated"; exit 1; }
+          if grep -qiE 'https?://(fonts\.(googleapis|gstatic)|cdn|unpkg|jsdelivr)' "$f"; then
+            echo "::error::the guide must not fetch anything from a third party"; exit 1
+          fi
+          echo "guide is $(wc -c < "$f") bytes and self-contained"
+
+      - name: Are the Cloudflare credentials configured?
+        id: creds
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID not set — skipping deploy."
+          fi
+
+      - name: Publish to Cloudflare
+        if: steps.creds.outputs.ready == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --config guide/wrangler.jsonc

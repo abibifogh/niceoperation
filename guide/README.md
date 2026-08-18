@@ -103,24 +103,93 @@ in the `how` and `why` text.
 
 ## Publishing
 
-Hosted the same way as the rest of this repository, as its own Cloudflare
-project so that it and niceoperation.com can never take each other down:
+The guide goes out as its own Cloudflare project, separate from the one that
+publishes niceoperation.com, so a bad deploy of one cannot take the other down.
 
-- Project name: `hostelaccra-guide`
-- Build command: *(leave empty)*
-- Deploy command: `npx wrangler deploy --config guide/wrangler.jsonc`
-- Custom domain: `guide.hostelaccra.com`
+The subdomain is declared in `wrangler.jsonc` rather than clicked into the
+dashboard:
 
-From a working copy:
+```jsonc
+"routes": [
+  { "pattern": "guide.hostelaccra.com", "custom_domain": true }
+]
+```
+
+That means `wrangler deploy` creates the DNS record and orders the certificate
+itself, and the address lives in version control next to the thing it points
+at. To change the subdomain, change that one line — and nothing else.
+
+### Before the first deploy
+
+**`hostelaccra.com` has to be a zone in the same Cloudflare account.** Workers
+custom domains need Cloudflare to be running the DNS; a CNAME added at another
+registrar will not work. Check at
+[dash.cloudflare.com](https://dash.cloudflare.com) — if the domain is not
+listed, add it and move the nameservers at the registrar first.
+
+If you would rather not move the nameservers yet, delete the `routes` block and
+deploy anyway. The guide comes up on
+`hostelaccra-guide.<your-subdomain>.workers.dev` and the custom domain can be
+attached later without republishing.
+
+### Option A — one command, from a working copy
 
 ```bash
 npx wrangler login
 npx wrangler deploy --config guide/wrangler.jsonc
 ```
 
-It is also a single self-contained file, so it can be dropped straight into
-the existing hostelaccra.com — as a page, in a subfolder, or emailed to a
-guest as an attachment that still works with the plane's wi-fi off.
+`wrangler login` opens a browser, so this has to be run somewhere with one.
+That is the whole deploy: it uploads three files, creates
+`guide.hostelaccra.com`, and issues the certificate. Give DNS a couple of
+minutes, then check the workers.dev address first if the subdomain is not
+resolving yet.
+
+To see exactly what would be sent without sending it:
+
+```bash
+npx wrangler deploy --config guide/wrangler.jsonc --dry-run
+```
+
+### Option B — the dashboard, the way niceoperation.com is already set up
+
+Workers & Pages → Create → connect this repository, then:
+
+- Project name: `hostelaccra-guide`
+- Production branch: `main`, root directory `/`
+- Build command: *(leave empty)*
+- Deploy command: `npx wrangler deploy --config guide/wrangler.jsonc`
+
+Cloudflare handles the credentials itself, so there are no secrets to manage.
+The two warnings in the root `README.md` apply here too: the build command
+must be empty, and the GitHub App has to have this repository in its access
+list.
+
+### Option C — push to deploy, from this repository's CI
+
+`.github/workflows/deploy-guide.yml` publishes on any push to `main` that
+touches `guide/`. It needs two repository secrets, under
+Settings → Secrets and variables → Actions:
+
+| Secret | Where it comes from |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | [API tokens](https://dash.cloudflare.com/profile/api-tokens) → Create token. Permissions: **Account → Workers Scripts → Edit**, **Zone → DNS → Edit**, **Zone → Workers Routes → Edit**. Scope it to this account and the `hostelaccra.com` zone only. |
+| `CLOUDFLARE_ACCOUNT_ID` | Right-hand column of the Cloudflare dashboard overview. |
+
+Use a scoped token, never the Global API Key, and paste it straight into the
+GitHub secrets form — not into chat, an issue, or a commit. Until both secrets
+exist the job reports "not configured" and passes, so nothing goes red in the
+meantime.
+
+The workflow also refuses to publish a guide that has been truncated or that
+has picked up a third-party request, which is the one regression that would
+quietly break the offline promise.
+
+### It does not need any of this
+
+It is a single self-contained file. It can equally be dropped into the existing
+hostelaccra.com as a page, put in a subfolder, or emailed to a guest as an
+attachment that still works with the plane's wi-fi off.
 
 ## The design, briefly
 
