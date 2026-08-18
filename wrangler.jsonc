@@ -1,0 +1,22 @@
+{
+  // How niceoperation.com gets published.
+  //
+  // Cloudflare pushes new projects through "Create a Worker" rather than
+  // Pages, and that screen has no "build output directory" box — it has a
+  // deploy command instead. This file is what that command reads: it says the
+  // site is nothing but the files in ./site, with no code behind it.
+  //
+  // Project name: niceops-site
+  // Build command: (leave empty)
+  // Deploy command: npx wrangler deploy
+  // Custom domains: niceoperation.com and www.niceoperation.com
+  "name": "niceops-site",
+  "compatibility_date": "2025-01-01",
+
+  // An assets-only Worker: no script, no server, just files. Cloudflare
+  // serves index.html for "/" and returns 404 for anything else, which is
+  // right for a single-page site.
+  "assets": {
+    "directory": "./site"
+  }
+}

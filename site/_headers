@@ -1,0 +1,8 @@
+# The page makes no third-party requests at all, so the policy that describes
+# it can be about as tight as a policy gets. Styles are inline, hence
+# 'unsafe-inline' on style-src; there is no script of any kind.
+/*
+  Content-Security-Policy: default-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()

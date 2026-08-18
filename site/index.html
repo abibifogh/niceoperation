@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NiceOps, the operations suite for hotels</title>
+<meta name="description" content="Eight systems for the work between the guest and the ledger: point of sale, laundry, breakfast stock, housekeeping, maintenance, team tasks, people, and one reporting hub that reads across all of them. In development.">
+<meta name="theme-color" content="#0E1A1C">
+<meta property="og:title" content="NiceOps, the operations suite for hotels">
+<meta property="og:description" content="Point of sale, laundry, breakfast stock, housekeeping, maintenance, tasks and people, with one hub that reads across all of them. Built inside a working operation. In development.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://niceoperation.com/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://niceoperation.com/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E1A1C'/%3E%3Cpath d='M9 22V10l14 12V10' fill='none' stroke='%23C8A15A' stroke-width='2.6' stroke-linecap='square'/%3E%3C/svg%3E">
+
+<style>
+/* ============================================================
+   NiceOps — niceoperation.com
+
+   Tokens. Brass on petrol: the material vocabulary of a hotel —
+   key fobs, lift plates, uniform buttons — rather than the teal
+   the POS itself wears, so the suite reads as the parent of it.
+   ============================================================ */
+:root {
+  --ink:        #0E1A1C;
+  --surface:    #14262A;
+  --surface-2:  #1B3136;
+  --line:       #24444A;
+  --line-soft:  #1C383D;
+  --text:       #DEE6E3;
+  --text-dim:   #94A9A5;
+  --brass:      #C8A15A;
+  --brass-lit:  #E2C285;
+  --sage:       #7FA093;
+  --focus:      #E2C285;
+  --shadow:     0 1px 2px rgba(0,0,0,.4), 0 12px 32px -16px rgba(0,0,0,.7);
+
+  --measure: 64ch;
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+  --bay: clamp(4rem, 9vw, 7.5rem);
+  --radius: 14px;
+
+  --step--2: clamp(0.7rem, 0.68rem + 0.08vw, 0.75rem);
+  --step--1: clamp(0.78rem, 0.76rem + 0.1vw, 0.84rem);
+  --step-0:  clamp(1rem, 0.97rem + 0.16vw, 1.09rem);
+  --step-1:  clamp(1.2rem, 1.12rem + 0.4vw, 1.45rem);
+  --step-2:  clamp(1.55rem, 1.35rem + 0.95vw, 2.15rem);
+  --step-3:  clamp(2.1rem, 1.6rem + 2.4vw, 3.4rem);
+  --step-4:  clamp(2.5rem, 1.75rem + 3.6vw, 4.6rem);
+
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* Light. Brass has to darken considerably to hold contrast on
+   paper — the same hue, not a different accent. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --ink:       #EEF1EF;
+    --surface:   #FFFFFF;
+    --surface-2: #E7ECE9;
+    --line:      #C8D2CE;
+    --line-soft: #DBE2DF;
+    --text:      #10201F;
+    --text-dim:  #4F6461;
+    --brass:     #8A6626;
+    --brass-lit: #6E511C;
+    --sage:      #40625A;
+    --focus:     #8A6626;
+    --shadow:    0 1px 2px rgba(16,32,31,.06), 0 12px 28px -18px rgba(16,32,31,.35);
+  }
+}
+:root[data-theme="light"] {
+  --ink:#EEF1EF; --surface:#FFFFFF; --surface-2:#E7ECE9; --line:#C8D2CE;
+  --line-soft:#DBE2DF; --text:#10201F; --text-dim:#4F6461; --brass:#8A6626;
+  --brass-lit:#6E511C; --sage:#40625A; --focus:#8A6626;
+  --shadow: 0 1px 2px rgba(16,32,31,.06), 0 12px 28px -18px rgba(16,32,31,.35);
+}
+:root[data-theme="dark"] {
+  --ink:#0E1A1C; --surface:#14262A; --surface-2:#1B3136; --line:#24444A;
+  --line-soft:#1C383D; --text:#DEE6E3; --text-dim:#94A9A5; --brass:#C8A15A;
+  --brass-lit:#E2C285; --sage:#7FA093; --focus:#E2C285;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px -16px rgba(0,0,0,.7);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 5.5rem; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 { margin: 0; font-weight: 750; letter-spacing: -0.03em; line-height: 1.08; text-wrap: balance; }
+h1 { font-size: var(--step-4); }
+h2 { font-size: var(--step-3); }
+h3 { font-size: var(--step-1); letter-spacing: -0.02em; }
+p { margin: 0; max-width: var(--measure); text-wrap: pretty; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
+
+.wrap { width: 100%; max-width: 1180px; margin-inline: auto; padding-inline: var(--gutter); }
+.mono { font-family: var(--mono); font-size: var(--step--1); letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); }
+.skip { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip:focus { width: auto; height: auto; overflow: visible; clip-path: none; left: var(--gutter); top: .6rem; z-index: 60; background: var(--surface); border: 1px solid var(--line); padding: .6rem 1rem; border-radius: 8px; }
+
+/* ---------- Notice bar: the suite is not open yet ---------- */
+.notice {
+  background: var(--surface-2);
+  background: color-mix(in srgb, var(--brass) 14%, var(--ink));
+  border-bottom: 1px solid var(--line);
+  border-bottom-color: color-mix(in srgb, var(--brass) 34%, transparent);
+  font-size: var(--step--1);
+}
+.notice .wrap { display: flex; gap: .5rem .9rem; align-items: baseline; flex-wrap: wrap; padding-block: .6rem; }
+.notice b { color: var(--brass-lit); font-weight: 700; }
+.notice span { color: var(--text-dim); }
+
+/* ---------- Masthead ---------- */
+.masthead {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--ink);
+  background: color-mix(in srgb, var(--ink) 86%, transparent);
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--line-soft);
+}
+.masthead .wrap { display: flex; align-items: center; gap: 1rem; padding-block: .85rem; }
+.mark { display: inline-flex; align-items: center; gap: .55rem; font-weight: 800; letter-spacing: -0.02em; text-decoration: none; font-size: 1.05rem; }
+.nav { display: flex; gap: 1.4rem; margin-left: auto; }
+.nav a { text-decoration: none; color: var(--text-dim); font-size: var(--step--1); }
+.nav a:hover { color: var(--text); }
+@media (max-width: 860px) { .nav { display: none; } }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .72rem 1.15rem; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface);
+  color: var(--text); text-decoration: none; font-weight: 650; font-size: var(--step--1);
+  transition: border-color .15s, background .15s, transform .15s;
+}
+.btn:hover { border-color: var(--brass); transform: translateY(-1px); }
+.btn-primary { background: var(--brass); border-color: var(--brass); color: #10201F; }
+.btn-primary:hover { background: var(--brass-lit); border-color: var(--brass-lit); }
+.btn-sm { padding: .5rem .85rem; }
+.actions { display: flex; flex-wrap: wrap; gap: .7rem; }
+
+/* ---------- Section furniture ---------- */
+section { padding-block: var(--bay); }
+.section-head { display: grid; gap: .9rem; margin-bottom: clamp(2rem, 4vw, 3.2rem); }
+.section-head p { color: var(--text-dim); font-size: var(--step-1); line-height: 1.5; }
+.rule { border: 0; border-top: 1px solid var(--line-soft); margin: 0; }
+
+/* ---------- Hero ---------- */
+.hero { padding-block: clamp(3.5rem, 8vw, 6.5rem) var(--bay); display: grid; gap: 1.5rem; }
+.hero h1 em { font-style: normal; color: var(--brass); }
+.lede { font-size: var(--step-1); line-height: 1.5; color: var(--text-dim); max-width: 58ch; }
+.hero .actions { margin-top: .6rem; }
+.hero-foot { color: var(--text-dim); font-size: var(--step--1); margin-top: .3rem; }
+
+/* ---------- The stack diagram ---------- */
+.stack { margin-top: clamp(2.5rem, 5vw, 4rem); display: grid; gap: 0; }
+.stack-top {
+  border: 1px solid var(--brass);
+  background: var(--surface);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--brass) 11%, var(--surface)), var(--surface));
+  border-radius: var(--radius); padding: 1.1rem 1.3rem;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .9rem;
+}
+.stack-top strong { font-size: var(--step-1); letter-spacing: -0.02em; }
+.stack-top span { color: var(--text-dim); font-size: var(--step--1); }
+.stack-link { display: grid; justify-items: center; color: var(--line); padding-block: .1rem; }
+.stack-link svg { display: block; }
+.stack-bay {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  padding: 1.1rem;
+}
+.stack-bay .mono { display: block; margin-bottom: .8rem; }
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+.chips li {
+  font-family: var(--mono); font-size: var(--step--2); letter-spacing: .04em;
+  border: 1px solid var(--line); border-radius: 999px; padding: .34rem .75rem;
+  color: var(--text-dim); background: var(--ink);
+}
+
+/* ---------- Problem strip ---------- */
+.strip { display: grid; gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); border-radius: var(--radius); overflow: hidden; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.strip > div { background: var(--ink); padding: 1.4rem 1.5rem; display: grid; gap: .5rem; align-content: start; }
+.strip h3 { font-size: var(--step-0); }
+.strip p { color: var(--text-dim); font-size: var(--step--1); line-height: 1.55; }
+
+/* ---------- Tool cards ---------- */
+.register { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+.entry {
+  position: relative; display: grid; gap: .75rem; align-content: start;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 1.35rem 1.4rem 1.5rem;
+  box-shadow: var(--shadow); transition: border-color .15s, transform .15s;
+}
+.entry:hover { border-color: var(--brass); transform: translateY(-2px); }
+.entry-head { display: flex; align-items: start; justify-content: space-between; gap: .8rem; }
+.entry-name { font-size: var(--step-1); font-weight: 750; letter-spacing: -0.02em; }
+.entry-code { font-family: var(--mono); font-size: var(--step--2); color: var(--text-dim); letter-spacing: .02em; word-break: break-all; }
+.entry p { color: var(--text-dim); font-size: var(--step--1); line-height: 1.6; }
+.entry-tags { list-style: none; margin: .15rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem; }
+.entry-tags li { font-size: var(--step--2); border: 1px solid var(--line-soft); border-radius: 6px; padding: .2rem .5rem; color: var(--text-dim); }
+.entry--wide { grid-column: 1 / -1; }
+
+/* Status badges. One attribute drives the whole state of a tool:
+   change data-status on the card and nothing else needs touching. */
+.badge {
+  flex: none; font-family: var(--mono); font-size: var(--step--2); letter-spacing: .07em;
+  text-transform: uppercase; border-radius: 999px; padding: .28rem .62rem;
+  border: 1px solid currentColor; white-space: nowrap;
+}
+[data-status="building"] .badge { color: var(--brass); }
+[data-status="soon"]     .badge { color: var(--sage); }
+[data-status="live"]     .badge { color: var(--sage); }
+
+/* ---------- Insight feature ---------- */
+.feature { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(1.6rem, 4vw, 3rem); display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.feature .section-head { margin-bottom: 0; }
+.qlist { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; }
+.qlist li { display: grid; grid-template-columns: auto 1fr; gap: .7rem; align-items: baseline; font-size: var(--step--1); color: var(--text-dim); line-height: 1.55; }
+.qlist li::before { content: "—"; color: var(--brass); }
+
+/* ---------- Steps ---------- */
+.steps { display: grid; gap: 1.6rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); counter-reset: step; }
+.step { display: grid; gap: .6rem; align-content: start; padding-top: 1.2rem; border-top: 2px solid var(--line); counter-increment: step; }
+.step::before { content: counter(step, decimal-leading-zero); font-family: var(--mono); font-size: var(--step--1); color: var(--brass); letter-spacing: .1em; }
+.step p { color: var(--text-dim); font-size: var(--step--1); line-height: 1.6; }
+
+/* ---------- Principles ---------- */
+.principles { display: grid; gap: 1.8rem 2.4rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); }
+.principle { display: grid; gap: .55rem; align-content: start; }
+.principle p { color: var(--text-dim); font-size: var(--step--1); line-height: 1.6; }
+
+/* ---------- Status table ---------- */
+.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: var(--step--1); }
+th, td { text-align: left; padding: .85rem 1.1rem; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+thead th { font-family: var(--mono); font-size: var(--step--2); letter-spacing: .07em; text-transform: uppercase; color: var(--text-dim); font-weight: 600; background: var(--surface); }
+tbody tr:last-child td { border-bottom: 0; }
+td.code { font-family: var(--mono); font-size: var(--step--2); color: var(--text-dim); }
+td .badge { display: inline-block; }
+
+/* ---------- FAQ ---------- */
+.faq { display: grid; gap: 0; border-top: 1px solid var(--line-soft); }
+details { border-bottom: 1px solid var(--line-soft); }
+summary { cursor: pointer; list-style: none; padding: 1.15rem 0; font-weight: 650; font-size: var(--step-0); display: flex; gap: 1rem; align-items: baseline; justify-content: space-between; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--brass); font-family: var(--mono); flex: none; }
+details[open] summary::after { content: "\2212"; }
+details p { color: var(--text-dim); font-size: var(--step--1); line-height: 1.65; padding-bottom: 1.2rem; }
+
+/* ---------- Closing ---------- */
+.closing { background: var(--surface); border-block: 1px solid var(--line); }
+.closing section { display: grid; gap: 1rem; }
+.closing p { font-size: var(--step-1); color: var(--text-dim); line-height: 1.5; }
+
+/* ---------- Footer ---------- */
+footer { padding-block: 3rem 3.5rem; }
+.foot-grid { display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); }
+@media (min-width: 900px) { .foot-grid { grid-template-columns: 1.6fr repeat(3, 1fr); } }
+.foot-col { display: grid; gap: .6rem; align-content: start; }
+.foot-col h4 { margin: 0 0 .2rem; font-size: var(--step--1); font-family: var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--text-dim); font-weight: 600; }
+.foot-col a, .foot-col span { text-decoration: none; color: var(--text-dim); font-size: var(--step--1); }
+.foot-col a:hover { color: var(--text); }
+.foot-note { color: var(--text-dim); font-size: var(--step--2); line-height: 1.6; }
+.foot-bottom { margin-top: 2.5rem; padding-top: 1.4rem; border-top: 1px solid var(--line-soft); display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; justify-content: space-between; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- The site-wide statement of where the suite actually is. Nothing on this
+     page links into a running application, because none of them are open. -->
+<div class="notice">
+  <div class="wrap">
+    <b>In development.</b>
+    <span>The suite is being built and proven inside a working hotel. None of these tools are open to other properties yet.</span>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="mark" href="/">
+      <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="currentColor" opacity="0.08"></rect>
+        <path d="M9 22V10l14 12V10" fill="none" stroke="var(--brass)" stroke-width="2.6" stroke-linecap="square"></path>
+      </svg>
+      NiceOps
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#suite">The suite</a>
+      <a href="#insight">Insight</a>
+      <a href="#how">How it works</a>
+      <a href="#approach">Approach</a>
+      <a href="#status">Status</a>
+    </nav>
+    <a class="btn btn-primary btn-sm" href="#contact">Ask about early access</a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ============================ HERO ============================ -->
+<div class="wrap">
+  <div class="hero">
+    <span class="mono">Operations software for hotels</span>
+    <h1>The work between the <em>guest</em> and the <em>ledger</em>.</h1>
+    <p class="lede">
+      A property runs on hundreds of small routines: a shift handover, a fridge counted before
+      service, a broken air conditioner, a guest's shirt due back by six, a file somebody needs
+      before Monday. Most of them live in notebooks, WhatsApp groups and somebody's memory.
+      NiceOps is eight systems that hold them instead — and one hub that reads across all eight.
+    </p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#suite">See the eight systems</a>
+      <a class="btn" href="#status">Where each one stands</a>
+    </div>
+    <p class="hero-foot">Built inside a working operation. Not yet open to other properties.</p>
+
+    <div class="stack">
+      <div class="stack-top">
+        <strong>Insight</strong>
+        <span>One sign-in for the whole suite, and the questions no single system can answer.</span>
+      </div>
+      <div class="stack-link" aria-hidden="true">
+        <svg width="20" height="42" viewBox="0 0 20 42">
+          <path d="M10 0v30" stroke="currentColor" stroke-width="1.5" fill="none"></path>
+          <path d="M4 28l6 8 6-8" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="stack-bay">
+        <span class="mono">The systems it reads</span>
+        <ul class="chips">
+          <li>Point of sale</li>
+          <li>Laundry</li>
+          <li>Breakfast &amp; stock</li>
+          <li>Housekeeping</li>
+          <li>Maintenance</li>
+          <li>Team tasks</li>
+          <li>HIVE, people</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="rule">
+
+<!-- ============================ PROBLEM ============================ -->
+<div class="wrap">
+  <section id="problem">
+    <div class="section-head">
+      <span class="mono">The problem</span>
+      <h2>Every system answers its own question well. Nobody can ask across them.</h2>
+      <p>
+        A hotel usually ends up with one tool per department, and no way to hold two of their
+        numbers at once. That is where the money hides.
+      </p>
+    </div>
+    <div class="strip">
+      <div>
+        <h3>The wage bill went up</h3>
+        <p>Is the hotel busier, or is it just going up? Attendance knows the hours. It has never seen the takings.</p>
+      </div>
+      <div>
+        <h3>The restaurant took less</h3>
+        <p>Did fewer guests stay, or did fewer of the guests who stayed eat in? Two systems, two screens, a calculator.</p>
+      </div>
+      <div>
+        <h3>The till was short on Tuesday</h3>
+        <p>Who was actually on the premises? The POS records the drawer. It cannot see the staff entrance.</p>
+      </div>
+      <div>
+        <h3>Two arms, one supplier</h3>
+        <p>The kitchen and the restaurant both buy tomatoes. Nothing in the building compares what each one paid.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<hr class="rule">
+
+<!-- ============================ THE SUITE ============================ -->
+<div class="wrap">
+  <section id="suite">
+    <div class="section-head">
+      <span class="mono">The suite</span>
+      <h2>Eight systems, each for a job somebody is already doing.</h2>
+      <p>
+        They run independently, on their own addresses, with their own permissions — a housekeeper's
+        PIN opens the bed check and nothing else. A property can take one or all of them.
+        Every one of them is still in development.
+      </p>
+    </div>
+
+    <div class="register">
+
+      <article class="entry entry--wide" data-status="building">
+        <div class="entry-head">
+          <div>
+            <div class="entry-name">Insight</div>
+            <div class="entry-code">insight.niceoperation.com</div>
+          </div>
+          <span class="badge">In development</span>
+        </div>
+        <p>
+          The hub, and the layer above everything else. It reads all the other systems every night,
+          forces them into one shape — a day, a part of the business, a figure in whole pesewas —
+          and ranks what it finds by what it is worth a month rather than by how alarming it sounds.
+          It is also the way in: one sign-in here opens every system in the suite.
+        </p>
+        <ul class="entry-tags">
+          <li>Group brief</li><li>Ranked findings</li><li>Cross-system rules</li><li>Single sign-on</li><li>Nightly warehouse</li>
+        </ul>
+      </article>
+
+      <article class="entry" data-status="building">
+        <div class="entry-head">
+          <div>
+            <div class="entry-name">Point of sale</div>
+            <div class="entry-code">pos.niceoperation.com</div>
+          </div>
+          <span class="badge">In development</span>
+        </div>
+        <p>
+          For restaurants and bars. Guests order from a code on the table, the kitchen works from a
+          live screen that keeps ringing until somebody acknowledges it, and every shift closes with
+          the cash counted against what the system says should be there. It keeps taking orders when
+          the internet drops.
+        </p>
+        <ul class="entry-tags">
+          <li>QR ordering</li><li>Kitchen display</li><li>Shifts &amp; cash</li><li>Recipes &amp; stock</li><li>Works offline</li>
+        </ul>
+      </article>
+
+      <article class="entry" data-status="building">
+        <div class="entry-head">
+          <div>
+            <div class="entry-name">Laundry</div>
+            <div class="entry-code">laundry.niceoperation.com</div>
+          </div>
+          <span class="badge">In development</span>
+        </div>
+        <p>
+          Guest laundry from the QR code to the pickup. Reception accepts, prices and moves each
+          order through the cycle; the guest gets an email at every stage and can message back. A
+          bill cannot be marked collected until it has been paid, and changing a price needs a
+          reason with a name on it.
+        </p>
+        <ul class="entry-tags">
+          <li>Guest ordering</li><li>Reception workflow</li><li>Shift handovers</li><li>Revenue reports</li><li>Audit log</li>
+        </ul>
+      </article>
+
+      <article class="entry" data-status="building">
+        <div class="entry-head">
+          <div>
+            <div class="entry-name">Breakfast &amp; stock</div>
+            <div class="entry-code">breakfast.niceoperation.com</div>
+          </div>
+          <span class="badge">In development</span>
+        </div>
+        <p>
+          Cooks record what was used each morning in under a minute. Cost per guest, week-on-week
+          comparisons, stock levels and the reorder list are all derived from that one sheet and the
+          delivery log. Each item shows what it normally takes for today's headcount — but nothing
+          is ever pre-filled silently.
+        </p>
+        <ul class="entry-tags">
+          <li>Daily usage</li><li>Cost per guest</li><li>Book stock</li><li>Purchases</li><li>Monthly report</li>
+        </ul>
+      </article>
+
+      <article class="entry" data-status="building">
+        <div class="entry-head">
+          <div>
+            <div class="entry-name">Housekeeping</div>
+            <div class="entry-code">housekeeping.niceoperation.com</div>
+          </div>
+          <span class="badge">In development</span>
+        </div>
+        <p>
+          The dorm bed check, on its own site with its own people. Three rounds a day, two questions
+          per bed — free or occupied, and if occupied, is it labelled. Each round is submitted and
+          emailed on its own by the people who did it. Nothing is typed unless there is something
+          to say.
+        </p>
+        <ul class="entry-tags">
+          <li>Bed checks</li><li>Three rounds daily</li><li>Own permissions</li><li>Emailed reports</li>
+        </ul>
+      </article>
+
+      <article class="entry" data-status="building">
+        <div class="entry-head">
+          <div>
+            <div class="entry-name">Maintenance</div>
+            <div class="entry-code">tasks.niceoperation.com/maintenance</div>
+          </div>
+          <span class="badge">In development</span>
+        </div>
+        <p>
+          Planned work on a calendar instead of in somebody's head, and anything that breaks reported
+          once, to a place where it can be picked up and closed out. The parts store is counted the
+          same way the kitchen is counted: a few taps from somebody with no time.
+        </p>
+        <ul class="entry-tags">
+          <li>Schedules</li><li>Issue reporting</li><li>Parts store</li><li>Close-out trail</li>
+        </ul>
+      </article>
+
+      <article class="entry" data-status="building">
+        <div class="entry-head">
+          <div>
+            <div class="entry-name">Team tasks</div>
+            <div class="entry-code">tasks.niceoperation.com/teamtasks</div>
+          </div>
+          <span class="badge">In development</span>
+        </div>
+        <p>
+          What each department owes, who is carrying it and where it has got to — visible without a
+          meeting to find out. For team leads who currently keep it in a notebook and a group chat.
+        </p>
+        <ul class="entry-tags">
+          <li>Departments</li><li>Ownership</li><li>Projects</li>
+        </ul>
+      </article>
+
+      <article class="entry entry--wide" data-status="building">
+        <div class="entry-head">
+          <div>
+            <div class="entry-name">HIVE</div>
+            <div class="entry-code">staff.niceoperation.com</div>
+          </div>
+          <span class="badge">In development</span>
+        </div>
+        <p>
+          Human Information &amp; Verification Engine: everything a hotel has to know about the people
+          who work in it, and everything it has to be able to prove. A punch is a fact; a day is an
+          opinion. Late, absent, hours and leave are all derived — so correcting a rota in September
+          fixes June's report instead of leaving two versions of the truth.
+        </p>
+        <ul class="entry-tags">
+          <li>Attendance</li><li>Rota</li><li>Leave</li><li>Personnel files</li><li>Letters &amp; signatures</li>
+        </ul>
+      </article>
+
+    </div>
+  </section>
+</div>
+
+<hr class="rule">
+
+<!-- ============================ INSIGHT ============================ -->
+<div class="wrap">
+  <section id="insight">
+    <div class="feature">
+      <div class="section-head">
+        <span class="mono">The layer above</span>
+        <h2>One sign-in, and the questions that need two systems at once.</h2>
+        <p>
+          Insight reads every system in the suite overnight and puts them in one warehouse where a
+          day means the same thing in all of them. Then it asks the things nobody could ask before.
+        </p>
+        <div class="actions">
+          <a class="btn" href="#contact">Ask about early access</a>
+        </div>
+      </div>
+      <ul class="qlist">
+        <li>Revenue per hour worked has fallen, and the hours have not</li>
+        <li>A line of the business spends more on wages than it takes</li>
+        <li>Overtime is being paid on the days that are not busy</li>
+        <li>The same supplier charges two arms of the group two prices</li>
+        <li>Feeding a guest costs more — and whether that is prices or portions</li>
+        <li>One person's till is short far more often than anybody else's</li>
+        <li>A till was closed on a day that person was never clocked in</li>
+        <li>Fewer of the guests in house are using the restaurant, or the laundry</li>
+        <li>Bed checks fall short on exactly the days somebody was absent</li>
+        <li>Money charged and never collected, and whether it is getting worse</li>
+        <li>And what none of the systems records at all — said plainly, on the same screen as the totals</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<hr class="rule">
+
+<!-- ============================ HOW IT WORKS ============================ -->
+<div class="wrap">
+  <section id="how">
+    <div class="section-head">
+      <span class="mono">How it works</span>
+      <h2>Recorded once, on the floor. Everything else is derived.</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <h3>The floor records the fact</h3>
+        <p>
+          A punch at the staff entrance, a fridge counted at the shelf, an order sent from a table,
+          a bed marked occupied. Each takes seconds, on a phone or a fixed terminal, from somebody
+          who has no time. Facts are never edited.
+        </p>
+      </div>
+      <div class="step">
+        <h3>Each system holds its own</h3>
+        <p>
+          Every judgement — late, absent, short, low, overdue — is worked out from those facts
+          against the rota, the levels and the rules in setup. Change a rule and every past report
+          is right again, rather than there being two versions of the truth.
+        </p>
+      </div>
+      <div class="step">
+        <h3>Insight asks across all of them</h3>
+        <p>
+          Overnight, every system's numbers are forced into one shape. In the morning there is one
+          screen: a single figure for the group, how each part has moved, and the findings ranked by
+          what they are worth a month.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<hr class="rule">
+
+<!-- ============================ APPROACH ============================ -->
+<div class="wrap">
+  <section id="approach">
+    <div class="section-head">
+      <span class="mono">The approach</span>
+      <h2>Built inside a working operation, not around a demo.</h2>
+    </div>
+    <div class="principles">
+      <div class="principle">
+        <h3>Written where the work happens</h3>
+        <p>
+          Every one of these started as a problem on a real floor: a drawer that would not balance, a
+          fault nobody logged, a file three people were looking for. They are shaped by the shift,
+          not by a feature list.
+        </p>
+      </div>
+      <div class="principle">
+        <h3>Usable at the end of a long day</h3>
+        <p>
+          The people using these are not at a desk. They are at a pass, on a corridor, closing a till
+          at one in the morning. Screens are built to be read at a glance and operated with one hand.
+        </p>
+      </div>
+      <div class="principle">
+        <h3>Honest about the money</h3>
+        <p>
+          Cash is counted against what the records say, differences have to be explained while
+          somebody still remembers, and anything corrected afterwards leaves a trail with a name
+          on it.
+        </p>
+      </div>
+      <div class="principle">
+        <h3>Standing up to a bad connection</h3>
+        <p>
+          Hospitality happens on mobile data and hotel wifi. Work carries on when the signal goes and
+          catches up when it returns, rather than stopping until somebody finds the router.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<hr class="rule">
+
+<!-- ============================ STATUS ============================ -->
+<div class="wrap">
+  <section id="status">
+    <div class="section-head">
+      <span class="mono">Where things stand</span>
+      <h2>Nothing here is open yet.</h2>
+      <p>
+        The suite is being built and run inside one working property. Until a system has been through
+        a full season there, it is not offered to anyone else — so this table says what each one is,
+        rather than inviting you to sign up for it.
+      </p>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">System</th><th scope="col">Address</th><th scope="col">Status</th></tr>
+        </thead>
+        <tbody>
+          <tr data-status="building"><td>Insight</td><td class="code">insight.niceoperation.com</td><td><span class="badge">In development</span></td></tr>
+          <tr data-status="building"><td>Point of sale</td><td class="code">pos.niceoperation.com</td><td><span class="badge">In development</span></td></tr>
+          <tr data-status="building"><td>Laundry</td><td class="code">laundry.niceoperation.com</td><td><span class="badge">In development</span></td></tr>
+          <tr data-status="building"><td>Breakfast &amp; stock</td><td class="code">breakfast.niceoperation.com</td><td><span class="badge">In development</span></td></tr>
+          <tr data-status="building"><td>Housekeeping</td><td class="code">housekeeping.niceoperation.com</td><td><span class="badge">In development</span></td></tr>
+          <tr data-status="building"><td>Maintenance</td><td class="code">tasks.niceoperation.com/maintenance</td><td><span class="badge">In development</span></td></tr>
+          <tr data-status="building"><td>Team tasks</td><td class="code">tasks.niceoperation.com/teamtasks</td><td><span class="badge">In development</span></td></tr>
+          <tr data-status="building"><td>HIVE, people</td><td class="code">staff.niceoperation.com</td><td><span class="badge">In development</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<hr class="rule">
+
+<!-- ============================ FAQ ============================ -->
+<div class="wrap">
+  <section id="faq">
+    <div class="section-head">
+      <span class="mono">Questions</span>
+      <h2>Before you ask.</h2>
+    </div>
+    <div class="faq">
+      <details>
+        <summary>Can I use any of this today?</summary>
+        <p>
+          No. Every system is in development and running only in the property it was built in. If
+          you would like to hear when one opens, write and say which part of your operation is
+          costing you the most time.
+        </p>
+      </details>
+      <details>
+        <summary>Is it one product or eight?</summary>
+        <p>
+          Eight, deliberately. Each runs on its own address with its own database and its own
+          permissions, so no system can take another one down and nobody is given access to more
+          than their job needs. Insight is the ninth thing: the sign-in and the reporting layer that
+          reads across all of them.
+        </p>
+      </details>
+      <details>
+        <summary>Does it handle room bookings?</summary>
+        <p>
+          No, and that matters enough to say twice. There is no property management system among
+          these tools, so every group total Insight produces is understated by the largest line in a
+          hotel's accounts. Insight says so on the same screen as the totals, every time. A dashboard
+          that quietly omitted it would be worse than no dashboard, because it would be believed.
+        </p>
+      </details>
+      <details>
+        <summary>What happens when the internet goes down?</summary>
+        <p>
+          The systems that have to keep working keep working. The point of sale carries on taking
+          orders and syncs when the connection returns; the breakfast count falls back to the
+          device's own storage. Hospitality happens on hotel wifi, and a tool that stops when the
+          signal does is a tool nobody trusts.
+        </p>
+      </details>
+      <details>
+        <summary>Do people need a login for each one?</summary>
+        <p>
+          Once Insight is in place, no. One sign-in there opens every system in the suite — click a
+          system on the hub and you arrive already signed in, as yourself, with whatever that system
+          says you may do. Staff who never touch a computer, like the people the attendance terminal
+          recognises, need no login at all.
+        </p>
+      </details>
+      <details>
+        <summary>Where does the data live?</summary>
+        <p>
+          Each system keeps its own, on its own infrastructure. Insight holds a copy in a warehouse
+          where nothing is a source of truth: every row in it is derived, and every row can be
+          rebuilt by running the loader again.
+        </p>
+      </details>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<!-- ============================ CLOSING ============================ -->
+<div class="closing" id="contact">
+  <div class="wrap">
+    <section>
+      <span class="mono">Get in touch</span>
+      <h2>Tell us which part is hurting.</h2>
+      <p>
+        We would rather start with the one problem that is actually costing you time than roll eight
+        systems out at once. Say what the operation looks like and we will tell you honestly whether
+        anything here is ready for it yet.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href="mailto:hello@niceoperation.com">hello@niceoperation.com</a>
+        <a class="btn" href="#suite">Look through the suite</a>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="wrap">
+  <footer>
+    <div class="foot-grid">
+      <div class="foot-col">
+        <div class="mark" style="font-size:var(--step-0)">
+          <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M9 22V10l14 12V10" fill="none" stroke="var(--brass)" stroke-width="2.6" stroke-linecap="square"></path>
+          </svg>
+          NiceOps
+        </div>
+        <p class="foot-note">
+          Operations software for hotels. Built inside a working property, and not offered to
+          another one until it has earned it.
+        </p>
+      </div>
+      <div class="foot-col">
+        <h4>The suite</h4>
+        <a href="#suite">Point of sale</a>
+        <a href="#suite">Laundry</a>
+        <a href="#suite">Breakfast &amp; stock</a>
+        <a href="#suite">Housekeeping</a>
+      </div>
+      <div class="foot-col">
+        <h4>&nbsp;</h4>
+        <a href="#suite">Maintenance</a>
+        <a href="#suite">Team tasks</a>
+        <a href="#suite">HIVE, people</a>
+        <a href="#insight">Insight</a>
+      </div>
+      <div class="foot-col">
+        <h4>More</h4>
+        <a href="#how">How it works</a>
+        <a href="#approach">Approach</a>
+        <a href="#status">Status</a>
+        <a href="mailto:hello@niceoperation.com">Contact</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span class="foot-note">&copy; NiceOps. All systems in development.</span>
+      <span class="foot-note">No analytics, no cookie banner, no third-party requests.</span>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>
