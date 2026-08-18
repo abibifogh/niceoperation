@@ -82,9 +82,17 @@ answers that question. If Cloudflare offers the older **Pages** flow instead
 leave the build command empty and set the build output directory to `site`.
 
 > The site used to be published from `website/` inside the `snpos` repository.
-> It lives here now. When this repository is connected, disconnect the old
-> `niceops-site` project pointed at `snpos`, or the two will fight over the
-> custom domain.
+> It lives here now. The `niceops-site` project was not recreated — its Git
+> connection was repointed from `snpos` to this repository, so it kept the same
+> Worker and the same custom domains and there was never a moment with the
+> domain detached.
+>
+> Two consequences worth remembering. The Worker name in `wrangler.jsonc` must
+> stay `niceops-site`, because that is the Worker holding the domains; renaming
+> it would deploy to a new, domainless Worker and leave the live site on the old
+> one. And `snpos` still contains a `wrangler.jsonc` and a `website/` folder
+> describing itself as the public site — nothing builds from them any more, but
+> they should be deleted so nobody edits the wrong copy.
 
 ## What is deliberately not here
 
