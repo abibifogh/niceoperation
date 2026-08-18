@@ -94,6 +94,37 @@ leave the build command empty and set the build output directory to `site`.
 > describing itself as the public site — nothing builds from them any more, but
 > they should be deleted so nobody edits the wrong copy.
 
+## When a deploy does not happen
+
+Two settings on the Cloudflare project will silently stop this site updating,
+and neither reports itself as an error on the page you are looking at.
+
+**The build command must be empty.** The project was originally connected to
+`snpos`, whose build command is `npm run build`. This repository has no
+`package.json` and nothing to compile — the deploy command does all the work —
+so if that field still says `npm run build`, every build fails before wrangler
+runs. Settings → Build → Build configuration → clear the field.
+
+**Check the Git connection is alive.** If Settings → Build shows *"This project
+is disconnected from your Git account"*, the project still remembers the
+repository name but the Cloudflare GitHub App authorization behind it is gone.
+GitHub then sends no webhooks, so pushes produce no build at all — nothing
+appears in Deployments, not even a failure, which makes it look like the push
+never happened. Click **Manage**, and make sure the Cloudflare Workers app is
+installed on the `abibifogh` account with `niceoperation` in its repository
+access list. It was installed for `snpos`, so this repository has to be added
+to it explicitly.
+
+Production branch should be `main`, and root directory `/`.
+
+If the dashboard is being unhelpful, the site can always be published straight
+from a working copy, to the same Worker and the same domains:
+
+```bash
+npx wrangler login
+npx wrangler deploy
+```
+
 ## What is deliberately not here
 
 No analytics, no cookie banner, no fonts fetched from anywhere else, no
