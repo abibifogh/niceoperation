@@ -7,7 +7,7 @@
 <meta name="description" content="A backpacker's field guide to Accra and the rest of Ghana, written from bed 1 at Somewhere Nice, 9 Cotton Avenue, Kokomlemle. Pick what you're into, get places, fares and the station to walk to.">
 <meta name="theme-color" content="#F3EFE4">
 <meta property="og:title" content="Somewhere Nice Field Guide">
-<meta property="og:description" content="Ghana, mapped by what you're actually into — with the tro-tro station, the fare and the walking time from our front gate.">
+<meta property="og:description" content="Ghana, sorted by what you like, with the tro-tro station, the fare and the walking time from our front gate.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2314120F'/%3E%3Cpath d='M16 5l2.9 8.6h9l-7.3 5.4 2.8 8.6-7.4-5.3-7.4 5.3 2.8-8.6L4.1 13.6h9z' fill='%23E5AE3A'/%3E%3C/svg%3E">
 <style>
@@ -281,9 +281,36 @@ section { padding-block: var(--bay); }
 @media (min-width: 1000px) { .mapwrap { grid-template-columns: 1.35fr 1fr; gap: 2.2rem; align-items: start; } }
 .mapbox {
   background: var(--sunk); border: 1px solid var(--line); position: relative; overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
 }
-.mapbox svg { display: block; width: auto; max-width: 100%; max-height: min(72vh, 760px); touch-action: manipulation; }
+.mapcanvas { display: flex; align-items: center; justify-content: center; }
+.mapcanvas svg {
+  display: block; width: auto; max-width: 100%; max-height: min(72vh, 760px);
+  touch-action: pan-y; cursor: grab;
+}
+/* Once you are zoomed in the map owns the gestures; at rest the page still
+   scrolls normally under your thumb. */
+.mapcanvas svg.is-zoomed { touch-action: none; }
+.mapcanvas svg.is-panning { cursor: grabbing; }
+/* Strokes stay the same thickness on screen however far you zoom in. */
+.coast, .landmass, .road, .ring, .pin circle, .home-star, .sea, .water { vector-effect: non-scaling-stroke; }
+
+.mapzoom {
+  position: absolute; top: .55rem; right: .55rem; z-index: 3;
+  display: flex; flex-direction: column; gap: .3rem;
+}
+.mapzoom button {
+  width: 2.3rem; height: 2.3rem; padding: 0; cursor: pointer; border-radius: 2px;
+  font-family: var(--mono); font-size: 1.05rem; line-height: 1;
+  background: var(--card); color: var(--ink); border: 1px solid var(--line);
+  display: grid; place-items: center; box-shadow: var(--shadow);
+}
+.mapzoom button:hover:not([disabled]) { border-color: var(--ink); }
+.mapzoom button[disabled] { opacity: .35; cursor: default; }
+.mapzoom .zlevel {
+  font-family: var(--mono); font-size: var(--t--2); color: var(--ink-2);
+  background: var(--card); border: 1px solid var(--line); padding: .2rem 0;
+  text-align: center; font-variant-numeric: tabular-nums; box-shadow: var(--shadow);
+}
 .map-tabs { display: flex; gap: .35rem; margin-bottom: .9rem; flex-wrap: wrap; align-items: center; }
 .coast { fill: none; stroke: var(--teal-fill); stroke-width: 2; opacity: .7; }
 .landmass { fill: var(--card); stroke: var(--line); stroke-width: 2; }
@@ -312,8 +339,37 @@ section { padding-block: var(--bay); }
 .mapside { position: sticky; top: 5.4rem; }
 .spotcard {
   background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--c, var(--gold-fill));
-  padding: 1.2rem; box-shadow: var(--shadow);
+  padding: 1.2rem; box-shadow: var(--shadow); position: relative;
 }
+.spot-close {
+  position: absolute; top: .55rem; right: .55rem; width: 2rem; height: 2rem; padding: 0;
+  font-family: var(--mono); font-size: 1.15rem; line-height: 1; cursor: pointer; border-radius: 2px;
+  background: var(--card-2); color: var(--ink-2); border: 1px solid var(--line);
+  display: grid; place-items: center;
+}
+.spot-close:hover { color: var(--ink); border-color: var(--ink); }
+.spotcard h3 { padding-right: 2.4rem; }
+
+/* On a phone the side panel would sit below the fold, so the pin opens a
+   sheet over the map instead. Same markup, different position. */
+.sheet-scrim { position: fixed; inset: 0; background: rgba(10,8,6,.5); z-index: 89; }
+.sheet-scrim[hidden] { display: none; }
+@media (min-width: 1000px) { .sheet-scrim { display: none; } }
+@media (max-width: 999px) {
+  .mapside { display: none; }
+  .mapside.is-open {
+    display: block; position: fixed; left: 0; right: 0; bottom: 0; top: auto;
+    z-index: 90; max-height: 84vh; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: sheet-up .18s ease-out;
+  }
+  .mapside.is-open .spotcard {
+    border-left: 0; border-right: 0; border-bottom: 0;
+    box-shadow: 0 -12px 44px -14px rgba(0,0,0,.55);
+  }
+  .spot-close { width: 2.5rem; height: 2.5rem; font-size: 1.35rem; }
+}
+@keyframes sheet-up { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
 .spotcard h3 { font-size: var(--t-2); margin-bottom: .3rem; }
 .spotcard .where { font-family: var(--mono); font-size: var(--t--2); color: var(--ink-3); text-transform: uppercase; letter-spacing: .1em; }
 .spotcard p { margin-top: .8rem; color: var(--ink-2); }
@@ -514,12 +570,12 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     </a>
     <nav aria-label="Sections">
       <a href="#start">Start</a>
+      <a href="#calendar">When</a>
       <a href="#map">Map</a>
       <a href="#places">Places</a>
       <a href="#routes">Routes</a>
       <a href="#trip">My trip</a>
       <a href="#kit">Ground rules</a>
-      <a href="#calendar">When</a>
     </nav>
     <button class="iconbtn" id="themeBtn" type="button" aria-pressed="false" title="Switch between light and dark">Dark</button>
     <a class="iconbtn" href="#trip" id="basketBtn">Trip <span class="basket-count" id="basketCount">0</span></a>
@@ -545,7 +601,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     <p class="lede">
       Kwame Nkrumah Circle is the country's biggest lorry park, and it is at the end of our
       street. From that one junction you can reach a slave castle, a rainforest canopy, an
-      elephant, a stilt village and West Africa's tallest waterfall — for less than the price
+      elephant, a stilt village and West Africa's tallest waterfall, for less than the price
       of a night out at home. This guide is built by the people who work here. Tell it what
       you're into and it will tell you where to go, which station to walk to, what to shout at
       the mate, and roughly what it should cost.
@@ -598,9 +654,34 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
 
 <hr class="weave weave--thin">
 
-<section id="map">
+<section id="calendar">
   <div class="wrap">
     <p class="eyebrow">Step two</p>
+    <h2 style="font-size:var(--t-3);max-width:20ch;margin-bottom:.8rem;">The year, month by month</h2>
+    <p class="lede" style="margin-bottom:1.8rem;">
+      There is no bad month, only different ones. The rains rarely cancel a day. They arrive
+      hard for an hour and then they leave. Highlighted below is where we are now.
+    </p>
+    <div class="cal-scroll">
+      <table class="cal">
+        <thead>
+          <tr><th scope="col">Month</th><th scope="col">Weather</th><th scope="col">Verdict</th><th scope="col">What's happening</th></tr>
+        </thead>
+        <tbody id="calBody"></tbody>
+      </table>
+    </div>
+    <p class="map-caption">
+      Festival dates on the traditional calendar move each year, Homowo and Damba and the Akwasidae
+      cycle especially. Ask at reception and we will find out the actual date for you.
+    </p>
+  </div>
+</section>
+
+<hr class="weave weave--thin">
+
+<section id="map">
+  <div class="wrap">
+    <p class="eyebrow">Step three</p>
     <h2 style="font-size:var(--t-3);max-width:20ch;margin-bottom:.8rem;">Where things actually are</h2>
     <p class="lede" style="margin-bottom:1.6rem;">
       The gold star is your bed. Rings are drawn at real distances from it, so you can see at a
@@ -614,13 +695,21 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       <span class="readout" id="mapCount"></span>
     </div>
     <div class="mapwrap">
-      <div class="mapbox" id="mapbox"></div>
-      <div class="mapside">
+      <div class="mapbox">
+        <div class="mapcanvas" id="mapcanvas"></div>
+        <div class="mapzoom">
+          <button type="button" id="zIn" title="Zoom in" aria-label="Zoom in">+</button>
+          <div class="zlevel" id="zLevel" aria-live="polite">1&times;</div>
+          <button type="button" id="zOut" title="Zoom out" aria-label="Zoom out">&minus;</button>
+          <button type="button" id="zReset" title="Reset the map" aria-label="Reset the map">&#8635;</button>
+        </div>
+      </div>
+      <div class="mapside" id="mapside">
         <div class="spotcard" id="spotcard">
           <h3>Tap a pin</h3>
           <p class="where">Or pick an interest above</p>
           <p>Every pin carries the fare, the station and the walking time from our gate. The
-          faint rings are 2, 5, 10 and 20 kilometres out — most of Accra's good stuff sits
+          faint rings are 2, 5, 10 and 20 kilometres out. Most of Accra's good stuff sits
           inside the second one.</p>
         </div>
       </div>
@@ -629,13 +718,15 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
   </div>
 </section>
 
+<div class="sheet-scrim" id="scrim" hidden></div>
+
 <hr class="weave weave--thin">
 
 <section id="places">
   <div class="wrap">
     <div class="listhead">
       <div>
-        <p class="eyebrow">Step three</p>
+        <p class="eyebrow">Step four</p>
         <h2 style="font-size:var(--t-3);">The places</h2>
       </div>
       <div class="sorter">
@@ -670,7 +761,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     <h2 style="font-size:var(--t-3);margin-bottom:.8rem;">My trip</h2>
     <p class="lede" style="margin-bottom:1.8rem;">
       Saved on this phone. Copy the link to send it to whoever you met at breakfast, or print
-      it and carry paper — which is the smarter move once you are north of Kumasi.
+      it and carry paper, which is the smarter move once you are north of Kumasi.
     </p>
     <div class="trip-grid">
       <div>
@@ -682,16 +773,15 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
           <dt>Days needed</dt><dd id="tDays">0</dd>
           <dt>Entry fees</dt><dd id="tFees">GHS 0</dd>
           <dt>Transport</dt><dd id="tTrans">GHS 0</dd>
-          <dt>Beds &amp; food</dt><dd id="tLiving">GHS 0</dd>
         </dl>
         <hr style="border:0;border-top:1px solid var(--line);margin:.9rem 0;">
-        <dl><dt>Rough total</dt><dd class="big" id="tTotal">GHS 0</dd></dl>
+        <dl><dt>Fees + transport</dt><dd class="big" id="tTotal">GHS 0</dd></dl>
         <div class="rate-row">
           <label for="fx">1 USD =</label>
           <input id="fx" type="number" inputmode="decimal" min="1" step="0.01" value="12">
           <span class="readout">GHS → <b id="tUsd">$0</b></span>
         </div>
-        <p class="readout" style="margin-top:.8rem;font-size:var(--t--2);">Ask at reception for today's rate — it moves.</p>
+        <p class="readout" style="margin-top:.8rem;font-size:var(--t--2);">Entry fees and travel only. Beds and food are not counted. Ask at reception for today's rate, because it moves.</p>
         <div class="place-actions" style="margin-top:1rem;">
           <button class="mini" type="button" id="copyBtn">Copy link</button>
           <button class="mini" type="button" id="printBtn">Print</button>
@@ -718,9 +808,9 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       <article style="--c:var(--gold-fill)">
         <h3>Money</h3>
         <ul>
-          <li>The currency is the <strong>cedi (GHS)</strong>, written <code>GH₵</code>. It moves a lot — check the rate the day you arrive rather than trusting a blog.</li>
+          <li>The currency is the <strong>cedi (GHS)</strong>, written <code>GH₵</code>. It moves a lot, so check the rate the day you arrive rather than trusting a blog.</li>
           <li><strong>Cash is still king</strong> outside malls and hotels. Tro-tros, chop bars, markets, park gates and taxis are cash only.</li>
-          <li>Break your notes early. Nobody at a roadside stall can change a 200. Hoard <strong>1, 2, 5 and 10 cedi notes</strong> — they are what a tro-tro fare looks like.</li>
+          <li>Break your notes early. Nobody at a roadside stall can change a 200. Hoard <strong>1, 2, 5 and 10 cedi notes</strong>. That is what a tro-tro fare looks like.</li>
           <li><strong>Mobile money (MoMo)</strong> runs the country. If you're staying more than a fortnight, register MTN MoMo with your SIM and passport; you can then pay for almost anything by phone.</li>
           <li>ATMs: use ones inside bank branches or malls, in daylight. Ecobank, Stanbic, Absa and GCB take foreign cards. Withdraw at the <strong>airport arrivals hall</strong> before you step outside.</li>
           <li>Tipping is not obligatory. Rounding up, or 10% in a sit-down restaurant, is generous and normal.</li>
@@ -734,7 +824,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
           <li>It leaves when it is full. Not before. This is not negotiable and getting annoyed about it changes nothing.</li>
           <li>Hand signals from the roadside: index finger <strong>down</strong> means "somewhere local"; a circling finger means <strong>Circle</strong>; pointing straight ahead means "along this road".</li>
           <li>Pay the mate once you're moving. Say your stop when you get in. Fares inside Accra run roughly <strong>GH₵ 3–15</strong>.</li>
-          <li>To get off, shout <strong>"Mate, bus stop!"</strong> in good time — a block early, not as you pass it.</li>
+          <li>To get off, shout <strong>"Mate, bus stop!"</strong> in good time, a block early rather than as you pass it.</li>
           <li>Keep your bag on your lap. Sit near the front if you're carrying a big pack; the back row is where you get wedged.</li>
         </ul>
       </article>
@@ -742,10 +832,10 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       <article style="--c:var(--teal-fill)">
         <h3>The stations you'll use</h3>
         <ul>
-          <li><strong>Kwame Nkrumah Circle</strong> — 10–12 min walk from our gate. Everything inside Accra, plus <strong>Neoplan station</strong> for Kumasi, Techiman, Tamale, Wa and Bolgatanga.</li>
-          <li><strong>Kaneshie</strong> — for going west: Kokrobite, Winneba, Cape Coast, Takoradi.</li>
-          <li><strong>Tudu &amp; Tema Station</strong> (Accra Central) — for going east: Akosombo, Ho, Hohoe, Ada, Aflao.</li>
-          <li><strong>37 Station</strong> (by the Military Hospital) — for Aburi, Madina, Legon, Koforidua.</li>
+          <li><strong>Kwame Nkrumah Circle</strong>: 10–12 min walk from our gate. Everything inside Accra, plus <strong>Neoplan station</strong> for Kumasi, Techiman, Tamale, Wa and Bolgatanga.</li>
+          <li><strong>Kaneshie</strong>: going west to Kokrobite, Winneba, Cape Coast, Takoradi.</li>
+          <li><strong>Tudu &amp; Tema Station</strong> (Accra Central): going east to Akosombo, Ho, Hohoe, Ada, Aflao.</li>
+          <li><strong>37 Station</strong> (by the Military Hospital): Aburi, Madina, Legon, Koforidua.</li>
           <li>For long distance, the coach companies beat tro-tros for comfort and safety: <strong>VIP</strong> and <strong>OA</strong> from Circle, <strong>STC</strong> from Circle and Tudu. Buy the ticket the day before for anything past Kumasi.</li>
           <li>Take the day bus, not the night bus. You see the country and you avoid the one genuinely risky thing about Ghanaian roads.</li>
         </ul>
@@ -766,9 +856,9 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         <h3>Paperwork &amp; health</h3>
         <ul>
           <li><strong>Yellow fever certificate is mandatory.</strong> It is checked on arrival at Kotoka. No card, no entry.</li>
-          <li>Most nationalities need a <strong>visa before travel</strong> — apply via the e-visa system or a Ghanaian mission. Visa on arrival exists but needs pre-approval; don't gamble on it.</li>
+          <li>Most nationalities need a <strong>visa before travel</strong>. Apply through the e-visa system or a Ghanaian mission. Visa on arrival exists but needs pre-approval; don't gamble on it.</li>
           <li>Ghana is <strong>malarial year-round</strong>. Take the prophylaxis, use the repellent at dusk, sleep under the net.</li>
-          <li>Drink <strong>sachet or bottled water</strong>, never the tap. Sachets ("pure water") cost small change and are sold everywhere — bite the corner.</li>
+          <li>Drink <strong>sachet or bottled water</strong>, never the tap. Sachets ("pure water") cost small change and are sold everywhere. Bite the corner off.</li>
           <li>Pharmacies are good, everywhere, and cheap. Carry oral rehydration salts.</li>
           <li>Emergencies: <strong>112</strong> for everything, <strong>191</strong> police, <strong>193</strong> ambulance. Reception is awake all night.</li>
         </ul>
@@ -777,7 +867,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       <article style="--c:var(--clay-fill)">
         <h3>Phone &amp; data</h3>
         <ul>
-          <li>Buy an <strong>MTN</strong> SIM — best coverage by a distance, and the only one you'll trust north of Tamale. Vodafone/Telecel and AirtelTigo are the alternatives.</li>
+          <li>Buy an <strong>MTN</strong> SIM. Best coverage by a distance, and the only one you'll trust north of Tamale. Vodafone/Telecel and AirtelTigo are the alternatives.</li>
           <li>Registration is required: <strong>bring your passport</strong> and get it done at a proper MTN shop, not a roadside table.</li>
           <li>Data is cheap. A month of enough-for-maps costs less than one beer at home.</li>
           <li>Nobody will phone you from MTN asking for a code. That is the country's most common scam. <strong>Never read a six-digit code down the phone.</strong></li>
@@ -789,10 +879,10 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         <h3>Sense, not fear</h3>
         <ul>
           <li>Ghana is peaceful and Ghanaians are, as a rule, actively helpful to strangers. The risks are petty, not dramatic.</li>
-          <li><strong>After dark, take a car.</strong> Not because of crime specifically — because pavements, drains and street lighting are unreliable.</li>
+          <li><strong>After dark, take a car.</strong> Not because of crime so much as because pavements, drains and street lighting are unreliable.</li>
           <li>Don't walk on empty beaches alone, day or night. Beaches are the one place travellers get relieved of their phones.</li>
           <li>Carry a photocopy of your passport; leave the real one in the locker by your bed.</li>
-          <li><strong>Never photograph</strong> military posts, the airport, police, or the seat of government. Ask before photographing people — most will say yes, warmly.</li>
+          <li><strong>Never photograph</strong> military posts, the airport, police, or the seat of government. Ask before photographing people. Most will say yes, warmly.</li>
           <li>Solo women travel here comfortably. On a tro-tro, sit next to another woman; you will find yourself quietly looked after.</li>
         </ul>
       </article>
@@ -802,7 +892,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         <ul>
           <li>Fixed prices exist in shops and supermarkets. Markets, craft stalls and taxis are negotiable. Park fees, museums and tro-tros are <strong>not</strong>.</li>
           <li>Greet first. <em>Always</em> greet first. Launching straight into a price is the rudest thing a visitor does here.</li>
-          <li>Ask the price, look mildly wounded, name about <strong>half</strong>, settle somewhere near two-thirds. Smile the whole time — it is a conversation, not a fight.</li>
+          <li>Ask the price, look mildly wounded, name about <strong>half</strong>, settle somewhere near two-thirds. Smile the whole time. It is a conversation, not a fight.</li>
           <li>Walking away slowly is a legitimate move and often ends the negotiation in your favour.</li>
           <li>Know when to stop. Arguing over two cedis with someone who makes them by hand is a bad look and everyone watching agrees.</li>
         </ul>
@@ -814,7 +904,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
           <li><strong>Right hand only</strong> for giving, receiving, eating and waving. The left is considered unclean. This one is not optional.</li>
           <li>Greet everybody. Shake hands moving <strong>left to right</strong> around a group. The Ghanaian finger-snap handshake will be taught to you, badly, within a week.</li>
           <li>Ask before you photograph a person, a shrine, or a funeral.</li>
-          <li>Saturdays are for funerals — red and black cloth, brass bands, hundreds of people. They are public, they are festive, and being invited to one is a compliment. Dress dark and go.</li>
+          <li>Saturdays are for funerals: red and black cloth, brass bands, hundreds of people. They are public, they are festive, and being invited to one is a compliment. Dress dark and go.</li>
           <li>Fridays are for wearing something Ghanaian. Buy a shirt at Makola and join in.</li>
           <li>Being called <strong>"obroni"</strong> (Twi) or <strong>"blofonyo"</strong> (Ga) in the street is not an insult. It just means foreigner. Wave back.</li>
         </ul>
@@ -823,13 +913,13 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       <article style="--c:var(--clay-fill)">
         <h3>Eat this, in this order</h3>
         <ul>
-          <li><strong>Waakye</strong> — rice and beans stained red by sorghum leaves, with shito, gari, egg, spaghetti and fish, served from a bowl on a table by the road. Breakfast. Non-negotiable.</li>
-          <li><strong>Banku &amp; grilled tilapia</strong> — fermented corn dough, whole fish, brutal pepper sauce. The national evening.</li>
-          <li><strong>Jollof</strong> — do not, under any circumstances, say Nigeria's is better.</li>
-          <li><strong>Kelewele</strong> — ginger-and-chilli fried plantain, sold after dark. The best thing in this country for the money.</li>
-          <li><strong>Red red</strong> — bean stew in palm oil with fried plantain. Usually vegetarian; ask.</li>
-          <li><strong>Chichinga</strong> — spiced meat skewers off a roadside grill, dusted with suya spice.</li>
-          <li><strong>Fufu &amp; light soup</strong> — pounded cassava and plantain. Swallow, don't chew. Eat with your right hand.</li>
+          <li><strong>Waakye</strong>. Rice and beans stained red by sorghum leaves, with shito, gari, egg, spaghetti and fish, served from a bowl on a table by the road. Breakfast. Non-negotiable.</li>
+          <li><strong>Banku &amp; grilled tilapia</strong>. Fermented corn dough, whole fish, brutal pepper sauce. The national evening.</li>
+          <li><strong>Jollof</strong>. Do not, under any circumstances, say Nigeria's is better.</li>
+          <li><strong>Kelewele</strong>. Ginger-and-chilli fried plantain, sold after dark. The best thing in this country for the money.</li>
+          <li><strong>Red red</strong>. Bean stew in palm oil with fried plantain. Usually vegetarian; ask.</li>
+          <li><strong>Chichinga</strong>. Spiced meat skewers off a roadside grill, dusted with suya spice.</li>
+          <li><strong>Fufu &amp; light soup</strong>. Pounded cassava and plantain. Swallow, don't chew. Eat with your right hand.</li>
           <li>Wash it down with <strong>sobolo</strong> (hibiscus, ginger, cloves), <strong>asaana</strong>, or a cold Club.</li>
         </ul>
       </article>
@@ -838,7 +928,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         <h3>What to bring</h3>
         <ul>
           <li>A <strong>head torch</strong>. Power cuts ("dumsor") happen; so do unlit stairwells at waterfalls.</li>
-          <li>Real shoes with grip for Kakum, Afadjato and Wli — flip-flops will humble you.</li>
+          <li>Real shoes with grip for Kakum, Afadjato and Wli. Flip-flops will humble you.</li>
           <li>Long sleeves and trousers for dusk, and something warm for December–February nights in the north.</li>
           <li>A dry bag if you're heading to Nzulezu, Ada or Mognori. Everything gets wet.</li>
           <li>A refillable bottle and a filter, so you're not buying twenty sachets a day.</li>
@@ -853,7 +943,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
           <li>Dorm bed, tro-tros, street food, one site a day: roughly <strong>GH₵ 300–450 a day</strong>.</li>
           <li>Private room, Bolt everywhere, restaurants, guided tours: roughly <strong>GH₵ 800–1,400 a day</strong>.</li>
           <li>Street plate of food: GH₵ 25–60. Restaurant main in Osu: GH₵ 90–200. Large beer: GH₵ 25–45.</li>
-          <li>Foreigner entry prices are standard practice at national monuments and parks — usually three to four times the Ghanaian rate. It is posted at the gate, it is not a scam, and arguing gets you nowhere.</li>
+          <li>Foreigner entry prices are standard practice at national monuments and parks, usually three to four times the Ghanaian rate. It is posted at the gate, it is not a scam, and arguing gets you nowhere.</li>
           <li>The big-ticket items are Mole (transport plus park fees) and any tour sold to you in Accra. Almost everything can be done independently for a third of the tour price.</li>
         </ul>
       </article>
@@ -862,18 +952,18 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
 
     <h3 style="font-size:var(--t-2);margin:3rem 0 .5rem;">Twelve words that change how people treat you</h3>
     <p class="lede" style="font-size:var(--t--1);margin-bottom:1.4rem;">
-      Twi is understood almost everywhere. Ga is Accra's own language — use it in Jamestown and
+      Twi is understood almost everywhere. Ga is Accra's own language. Use it in Jamestown and
       watch faces change. Ewe is the Volta Region.
     </p>
     <div class="phrases">
-      <div class="phrase" style="--c:var(--red)"><span class="lang">Twi</span><b>Ɛte sɛn?</b><span class="say">eh-teh SEN</span><span class="mean">How are you? Answer: <em>Bɔkɔɔ</em> (baw-KAW-aw) — cool, fine.</span></div>
+      <div class="phrase" style="--c:var(--red)"><span class="lang">Twi</span><b>Ɛte sɛn?</b><span class="say">eh-teh SEN</span><span class="mean">How are you? Answer: <em>Bɔkɔɔ</em> (baw-KAW-aw), meaning cool, fine.</span></div>
       <div class="phrase" style="--c:var(--red)"><span class="lang">Twi</span><b>Medaase</b><span class="say">meh-DAA-si</span><span class="mean">Thank you. Say it constantly.</span></div>
       <div class="phrase" style="--c:var(--red)"><span class="lang">Twi</span><b>Mepa wo kyɛw</b><span class="say">meh-pa wo CHOW</span><span class="mean">Please / excuse me / sorry. Opens every door.</span></div>
       <div class="phrase" style="--c:var(--red)"><span class="lang">Twi</span><b>Ɛyɛ sɛn?</b><span class="say">eh-yeh SEN</span><span class="mean">How much is it? The four most useful syllables in any market.</span></div>
       <div class="phrase" style="--c:var(--red)"><span class="lang">Twi</span><b>Te so kakra</b><span class="say">teh so KA-kra</span><span class="mean">Bring it down a little. Delivered with a smile, it works.</span></div>
       <div class="phrase" style="--c:var(--gold)"><span class="lang">Ga · Accra</span><b>Ojekoo</b><span class="say">oh-jeh-KOH</span><span class="mean">Good morning, in the language of the city you're standing in.</span></div>
       <div class="phrase" style="--c:var(--gold)"><span class="lang">Ga · Accra</span><b>Oyiwaladɔŋŋ</b><span class="say">oh-yi-wah-la-DONG</span><span class="mean">Thank you. Worth the effort; almost no visitor tries it.</span></div>
-      <div class="phrase" style="--c:var(--teal)"><span class="lang">Ewe · Volta</span><b>Ŋdi</b><span class="say">n-DEE</span><span class="mean">Good morning. Pair with <em>Akpe</em> (ak-PEH) — thank you.</span></div>
+      <div class="phrase" style="--c:var(--teal)"><span class="lang">Ewe · Volta</span><b>Ŋdi</b><span class="say">n-DEE</span><span class="mean">Good morning. Pair with <em>Akpe</em> (ak-PEH), thank you.</span></div>
       <div class="phrase" style="--c:var(--plum)"><span class="lang">Everywhere</span><b>Akwaaba</b><span class="say">ah-KWAA-ba</span><span class="mean">Welcome. You will be told this a hundred times. It is meant.</span></div>
       <div class="phrase" style="--c:var(--plum)"><span class="lang">Pidgin</span><b>Chale</b><span class="say">CHA-lay</span><span class="mean">Mate, buddy, oh-come-on. Ghana's most versatile word.</span></div>
       <div class="phrase" style="--c:var(--plum)"><span class="lang">Pidgin</span><b>I dey come</b><span class="say">ee day come</span><span class="mean">"I'm leaving but I'll be back." Confusing, and completely standard.</span></div>
@@ -882,30 +972,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
   </div>
 </section>
 
-<hr class="weave weave--thin">
 
-<section id="calendar">
-  <div class="wrap">
-    <p class="eyebrow">Timing</p>
-    <h2 style="font-size:var(--t-3);max-width:20ch;margin-bottom:.8rem;">The year, month by month</h2>
-    <p class="lede" style="margin-bottom:1.8rem;">
-      There is no bad month, only different ones. The rains rarely cancel a day — they arrive
-      hard for an hour and leave. Highlighted below is where we are now.
-    </p>
-    <div class="cal-scroll">
-      <table class="cal">
-        <thead>
-          <tr><th scope="col">Month</th><th scope="col">Weather</th><th scope="col">Verdict</th><th scope="col">What's happening</th></tr>
-        </thead>
-        <tbody id="calBody"></tbody>
-      </table>
-    </div>
-    <p class="map-caption">
-      Festival dates on the traditional calendar move each year — Homowo, Damba and the Akwasidae
-      cycle in particular. Ask at reception and we will find out the actual date for you.
-    </p>
-  </div>
-</section>
 
 </main>
 
@@ -920,8 +987,8 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         Ghana
       </p>
       <p style="margin-top:1rem;">
-        Taxi drivers may not know Cotton Avenue. They all know <strong style="color:#E5AE3A">ATTC</strong> —
-        the Accra Technical Training Centre — which is a five minute walk away. Say ATTC, then
+        Taxi drivers may not know Cotton Avenue. They all know <strong style="color:#E5AE3A">ATTC</strong>,
+        the Accra Technical Training Centre, which is a five minute walk away. Say ATTC, then
         show them this page.
       </p>
     </div>
@@ -931,23 +998,23 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         <li>Reception is staffed around the clock.</li>
         <li>We arrange airport pickups, and we will tell you the fair price for any journey before you book it.</li>
         <li>We know which guide at Wli is good and which bus company is running late this month. Ask before you book anything online.</li>
-        <li>Going somewhere on this list? Tell us — there is usually another guest heading the same way tomorrow.</li>
+        <li>Going somewhere on this list? Tell us. There is usually another guest heading the same way tomorrow.</li>
       </ul>
     </div>
     <div>
       <h4>In an emergency</h4>
       <ul>
-        <li>All emergencies — <strong style="color:#E5AE3A">112</strong></li>
-        <li>Police — <strong style="color:#E5AE3A">191</strong></li>
-        <li>Ambulance — <strong style="color:#E5AE3A">193</strong></li>
-        <li>Fire — <strong style="color:#E5AE3A">192</strong></li>
+        <li>All emergencies: <strong style="color:#E5AE3A">112</strong></li>
+        <li>Police: <strong style="color:#E5AE3A">191</strong></li>
+        <li>Ambulance: <strong style="color:#E5AE3A">193</strong></li>
+        <li>Fire: <strong style="color:#E5AE3A">192</strong></li>
         <li>Tell reception too. We can get to you faster than most services can.</li>
       </ul>
     </div>
   </div>
   <div class="wrap disclaimer">
     Prices, opening hours and bus timetables in Ghana change without warning, and the numbers
-    here are what we could verify in August 2026 — treat them as a sense of scale, not a
+    here are what we could verify in August 2026. Treat them as a sense of scale rather than a
     quotation. Anything critical, ask at reception the morning you go. Nothing on this page is
     sponsored: no listing here was paid for, and we take nothing from anyone we send you to.
   </div>
@@ -1008,27 +1075,27 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
 
     { id:"jamestown", n:"Jamestown & Bukom on foot", a:"Jamestown", r:"accra", lat:5.5312, lon:-0.2140, t:["roots","city","art"], d:0.5, cost:100, tr:40, star:3,
       when:"Saturday 2pm, or early any morning",
-      why:"The oldest quarter of Accra: colonial forts falling into the sea, a fishing beach where hundreds of painted canoes land the city's food, and Bukom — a few streets that have produced more world boxing champions than most countries. Lonely Planet's number one sight in Accra, and it deserves it.",
+      why:"The oldest quarter of Accra: colonial forts falling into the sea, a fishing beach where hundreds of painted canoes land the city's food, and Bukom, a few streets that have produced more world boxing champions than most countries. Lonely Planet's number one sight in Accra, and it deserves it.",
       how:"Tro-tro from Circle to Accra Central, then a shared taxi to Jamestown, or Bolt for about GH₵ 35–50. Jamestown Walking Tours leave from the Community Theatre on High Street, Saturdays at 2pm, around GH₵ 100.",
-      tip:"Go with a local guide, not alone with a camera. It is a working neighbourhood, not an exhibit — and the guides are from Bukom, so the doors that open for them will not open for you." },
+      tip:"Go with a local guide, not alone with a camera. It is a working neighbourhood, not an exhibit. The guides are from Bukom, so the doors that open for them will not open for you." },
 
     { id:"lighthouse", n:"Jamestown Lighthouse", a:"Jamestown", r:"accra", lat:5.5305, lon:-0.2148, t:["city"], d:0.1, cost:20, tr:40, star:2,
       when:"Late afternoon",
       why:"Climb the spiral stairs for the whole of Accra at once: the harbour, the tin roofs, the lagoon and the surf, with the fishing fleet directly below you.",
-      how:"Same trip as the Jamestown walk — the lighthouse is the landmark you'll be standing under. Around GH₵ 20 to climb.",
+      how:"Same trip as the Jamestown walk. The lighthouse is the landmark you'll be standing under. Around GH₵ 20 to climb.",
       tip:"Go up an hour before sunset. The keeper will let you onto the gallery; a small tip is expected and fair." },
 
     { id:"makola", n:"Makola Market", a:"Accra Central", r:"accra", lat:5.5470, lon:-0.2115, t:["food","craft","city"], d:0.3, cost:0, tr:20, star:3,
       when:"Weekday mornings",
       why:"Accra's great market and the engine room of the city's economy, run almost entirely by women. Wax print by the yard, kente, glass beads, shea butter, smoked fish, chilli, and a wall of sound. This is where you learn to bargain.",
       how:"Tro-tro from Circle to Accra Central / Tudu, GH₵ 4–6, then walk. Everyone will point you the right way.",
-      tip:"Take a small bag, no jewellery, and a hand on your pocket in the crush. Buy fabric by the half-piece (three yards) — it is the standard cut and the sellers will respect you for knowing it." },
+      tip:"Take a small bag, no jewellery, and a hand on your pocket in the crush. Buy fabric by the half-piece, which is three yards. That is the standard cut, and the sellers will respect you for knowing it." },
 
     { id:"museum", n:"National Museum of Ghana", a:"Adabraka", r:"accra", lat:5.5620, lon:-0.2003, t:["roots","art"], d:0.2, cost:80, tr:25, star:2,
       when:"Open daily, 9am–4.30pm",
-      why:"Reopened in 2022 after seven years shut, and now a genuinely good hour: Asante goldweights, Akan stools, ceremonial cloth, and the archaeology of the forest kingdoms.",
+      why:"Reopened in 2022 after seven years shut, and now a good hour of your time: Asante goldweights, Akan stools, ceremonial cloth, and the archaeology of the forest kingdoms.",
       how:"Twenty minutes' walk from here down Barnes Road, or GH₵ 20–30 in a Bolt. One of the closest sights to your bed.",
-      tip:"Small, so don't build a day around it. Pair it with the Arts Centre and Black Star Square — they are all on the same stretch." },
+      tip:"Small, so don't build a day around it. Pair it with the Arts Centre and Black Star Square. They are all on the same stretch." },
 
     { id:"blackstar", n:"Black Star Square & Independence Arch", a:"Osu / seafront", r:"accra", lat:5.5497, lon:-0.1917, t:["city","roots"], d:0.15, cost:0, tr:30, star:2,
       when:"Early morning or sunset",
@@ -1038,7 +1105,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
 
     { id:"artscentre", n:"Arts Centre for National Culture", a:"Accra Central", r:"accra", lat:5.5452, lon:-0.1990, t:["craft"], d:0.2, cost:0, tr:25, star:2,
       when:"Any afternoon",
-      why:"A warren of stalls and workshops selling carvings, drums, masks, beads, batik and paintings, with the makers sitting behind most of them. It is touristy, and it is also where you will actually find a djembe worth carrying home.",
+      why:"A warren of stalls and workshops selling carvings, drums, masks, beads, batik and paintings, with the makers sitting behind most of them. It is touristy. It is also where you will find a djembe worth carrying home.",
       how:"Tro-tro to Accra Central then walk towards the sea, or Bolt for around GH₵ 30.",
       tip:"You will be pulled into every stall. It is fine to say 'I'm just looking, chale' and keep walking. Expect to pay about half the first price, and never buy from the first stall." },
 
@@ -1046,41 +1113,41 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       when:"After 6pm",
       why:"Accra's eating and drinking spine. Grilled tilapia, khebab smoke, kelewele carts, rooftop bars, second-hand bookshops and the city's best people-watching, all in about six blocks.",
       how:"Tro-tro from Circle shouting 'Osu' (GH₵ 5–8), or a Bolt for GH₵ 25–40. Ten minutes when the road is clear, forty when it isn't.",
-      tip:"Eat on the street, drink in the bars. Kelewele appears on the corners after dark and costs almost nothing — start there." },
+      tip:"Eat on the street, drink in the bars. Kelewele appears on the corners after dark and costs almost nothing. Start there." },
 
     { id:"republic", n:"Republic Bar & Grill", a:"Osu", r:"accra", lat:5.5563, lon:-0.1836, t:["music","food"], d:0.25, cost:150, tr:60, star:3,
       when:"Thursday to Saturday nights; karaoke Tuesdays 8pm",
-      why:"The bar that everyone — locals, expats, travellers, musicians — ends up in. Live highlife and Afrobeat spilling onto the street, and a cocktail called Kokroko made with akpeteshie, the local firewater. If you go out once in Accra, go here.",
-      how:"Tro-tro or Bolt to Osu, then walk. Ask for Republic — every driver knows it.",
+      why:"The bar everyone ends up in: locals, expats, travellers, musicians. Live highlife and Afrobeat spilling onto the street, and a cocktail called Kokroko made with akpeteshie, the local firewater. If you go out once in Accra, go here.",
+      how:"Tro-tro or Bolt to Osu, then walk. Ask for Republic. Every driver knows it.",
       tip:"Drink the Kokroko once, respect it, and switch to Club beer. Standing outside on the street is part of the venue, not a lesser option." },
 
     { id:"bloom", n:"Bloom Bar", a:"Osu", r:"accra", lat:5.5588, lon:-0.1795, t:["music"], d:0.25, cost:150, tr:60, star:2,
       when:"Friday and Saturday, late",
       why:"A garden courtyard strung with lights where Accra's young creative crowd goes: live bands early, DJs playing Afrobeats and amapiano until it gets silly.",
-      how:"Same trip as Osu. Bolt back afterwards — do not walk home at 3am, it's 20 minutes of unlit road.",
+      how:"Same trip as Osu. Bolt back afterwards. Do not walk home at 3am; it is 20 minutes of unlit road.",
       tip:"Nothing starts before 10pm. Anyone who tells you otherwise has never been." },
 
     { id:"jazz233", n:"+233 Jazz Bar & Grill", a:"North Ridge", r:"accra", lat:5.5760, lon:-0.1968, t:["music"], d:0.25, cost:120, tr:40, star:2,
       when:"Most nights from about 8pm",
       why:"Named after the country's dialling code and the closest thing Accra has to an institution for live music: jazz, highlife and Afro-fusion under an open-sided roof, with a serious house band.",
-      how:"The closest good night out to this hostel — a ten-minute, GH₵ 20–30 Bolt, or a twenty-five minute walk across Ridge.",
+      how:"The closest good night out to this hostel. A ten-minute Bolt at GH₵ 20–30, or a twenty-five minute walk across Ridge.",
       tip:"Sunday sessions are the local secret. Small cover charge, and worth being early enough to get a table near the stage." },
 
     { id:"labadi", n:"Labadi Beach", a:"La", r:"accra", lat:5.5600, lon:-0.1520, t:["beach","music"], d:0.4, cost:50, tr:70, star:2,
       when:"Sunday afternoon",
-      why:"Accra's own beach, and on Sundays a full-blown event: live highlife bands, horses on the sand, acrobats, reggae, grilled everything, and half the city out in its good clothes. Not a quiet swim — a party you can walk into.",
+      why:"Accra's own beach, and on Sundays a full-blown event: live highlife bands, horses on the sand, acrobats, reggae, grilled everything, and half the city out in its good clothes. Not a quiet swim. A party you can walk into.",
       how:"Tro-tro from Circle towards La / Teshie (GH₵ 6–10) and ask for La Pleasure Beach, or Bolt for about GH₵ 40–60. Entry is around GH₵ 30–50.",
-      tip:"The undertow here is serious — stay where other people are swimming. Take almost nothing with you; leave the passport and the good camera in your locker." },
+      tip:"The undertow here is serious, so stay where other people are swimming. Take almost nothing with you; leave the passport and the good camera in your locker." },
 
     { id:"dubois", n:"W.E.B. Du Bois Memorial Centre", a:"Cantonments", r:"accra", lat:5.5670, lon:-0.1772, t:["roots"], d:0.2, cost:50, tr:60, star:2,
       when:"Mon–Fri 9am–4pm, Sat 10am–3pm",
       why:"The house where the father of Pan-Africanism spent his last years, became a Ghanaian citizen, and is buried in the garden with his wife. His library, his study, and a quiet that the rest of Accra doesn't offer.",
       how:"Bolt to Cantonments, about GH₵ 40. Or tro-tro towards Labadi and walk in from the main road.",
-      tip:"Twenty minutes if you rush it, two hours if you talk to the staff — and you should. Pair with Osu, which is close." },
+      tip:"Twenty minutes if you rush it, two hours if you talk to the staff, and you should. Pair with Osu, which is close." },
 
     { id:"g1957", n:"Gallery 1957", a:"Ridge / Kempinski", r:"accra", lat:5.5540, lon:-0.1960, t:["art"], d:0.15, cost:0, tr:40, star:2,
       when:"Daytime, closed Sundays",
-      why:"The gallery that put contemporary Ghanaian art on the international map — Amoako Boafo, Serge Attukwei Clottey, Ibrahim Mahama have all shown here. Free, air-conditioned, and consistently excellent.",
+      why:"The gallery that put contemporary Ghanaian art on the international map. Amoako Boafo, Serge Attukwei Clottey and Ibrahim Mahama have all shown here. Free, air-conditioned and very good.",
       how:"Bolt for about GH₵ 25–35. Spaces are in the Kempinski hotel and the Galleria Mall.",
       tip:"Free entry, no pressure to buy, and the staff will talk you through the work if you ask. The single best half hour of art in the country." },
 
@@ -1088,41 +1155,41 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       when:"Poetry on the last Sunday of the month",
       why:"An artist-run foundation in a beautiful concrete building: exhibitions, printmaking, a library, theatre and an open poetry night that draws Accra's writers.",
       how:"Tro-tro from Circle to Madina or Legon (GH₵ 8–12), then a shared taxi. Bolt is about GH₵ 50–70.",
-      tip:"Check what's on before you make the trip out — East Legon is a long way to go for a closed door." },
+      tip:"Check what's on before you make the trip out. East Legon is a long way to go for a closed door." },
 
     { id:"artistsalliance", n:"Artists Alliance Gallery", a:"La", r:"accra", lat:5.5570, lon:-0.1350, t:["art","craft"], d:0.2, cost:0, tr:80, star:1,
       when:"Daytime",
       why:"Three floors of Ablade Glover's gallery on the beach road, from tourist carvings on the ground floor up to serious canvases at the top. The building alone is worth the trip.",
       how:"Tro-tro towards Teshie–Nungua and ask for Omanye House, or Bolt for around GH₵ 50.",
-      tip:"Start at the top floor and work down. Prices drop as you descend, and so does the quality — which tells you something." },
+      tip:"Start at the top floor and work down. Prices drop as you descend, and so does the quality, which tells you something." },
 
     { id:"legonbg", n:"Legon Botanical Gardens", a:"Legon", r:"accra", lat:5.6510, lon:-0.1935, t:["wild","chill"], d:0.3, cost:60, tr:60, star:1,
       when:"Weekday mornings",
       why:"Fifty hectares of forest inside the city with a canopy walkway, a zipline, kayaks and a lot of shade. The cheapest way to hear birds instead of horns.",
       how:"Tro-tro from Circle to Legon (GH₵ 8–12), then a short taxi. About GH₵ 50 in a Bolt.",
-      tip:"Weekends fill with school groups and families — go Tuesday if you want it to yourself." },
+      tip:"Weekends fill with school groups and families. Go on a Tuesday if you want it to yourself." },
 
     { id:"stadium", n:"Hearts of Oak at the Sports Stadium", a:"Osu", r:"accra", lat:5.5548, lon:-0.1918, t:["city"], d:0.3, cost:40, tr:40, star:2,
       when:"Match weekends, league season",
       why:"Accra Hearts of Oak in their rainbow colours, a stand full of drums and horns, and if you catch Hearts against Asante Kotoko you have walked into the biggest rivalry in West African football.",
       how:"Tro-tro towards Osu and get off at the stadium, GH₵ 5–8. Tickets from the gate on the day, usually GH₵ 30–60.",
-      tip:"Buy the cheap standing ticket, not the seats — that is where the singing is. Ask reception whether there's a fixture; the calendar shifts constantly." },
+      tip:"Buy the cheap standing ticket rather than the seats. That is where the singing is. Ask reception whether there's a fixture; the calendar shifts constantly." },
 
     { id:"kaneshie", n:"Kaneshie Market", a:"Kaneshie", r:"accra", lat:5.5623, lon:-0.2378, t:["food","city"], d:0.2, cost:0, tr:15, star:1,
       when:"Mornings",
-      why:"A three-storey covered market that most visitors never see: the food floor is a masterclass in what Ghanaians actually eat, and nobody is trying to sell you a souvenir.",
-      how:"Tro-tro from Circle to Kaneshie, GH₵ 4–6, ten minutes. This is also the station for anywhere west — Kokrobite, Winneba, Cape Coast.",
+      why:"A three-storey covered market that most visitors never see: the food floor shows you what Ghanaians eat at home, and nobody is trying to sell you a souvenir.",
+      how:"Tro-tro from Circle to Kaneshie, GH₵ 4–6, ten minutes. This is also the station for anywhere west: Kokrobite, Winneba, Cape Coast.",
       tip:"Go upstairs. Ground floor is the noise; the first floor is the smoked fish, the snails, the palm nut and the reason to come." },
 
     { id:"chalewote", n:"Chale Wote Street Art Festival", a:"Jamestown", r:"accra", lat:5.5315, lon:-0.2130, t:["art","music","city"], d:1, cost:0, tr:40, star:3,
       when:"Late August, one weekend",
       why:"Africa's biggest street art festival takes over Jamestown's High Street for a weekend: murals going up live, performance art, sound systems, skaters, fashion, and about thirty thousand people. If your dates land anywhere near it, change your plans to be here.",
       how:"Getting there is easy; getting back is not. Take a tro-tro or Bolt in early and expect to walk out to Accra Central to find a ride home.",
-      tip:"Free. Take cash, a hat, and nothing you would mind losing. Reception can tell you the exact weekend — it moves each year." },
+      tip:"Free. Take cash, a hat, and nothing you would mind losing. Reception can tell you the exact weekend, because it moves each year." },
 
     { id:"bojo", n:"Bojo Beach", a:"Bortianor", r:"accra", lat:5.5000, lon:-0.3300, t:["beach","chill"], d:0.5, cost:80, tr:80, star:2,
       when:"Any dry day; go early",
-      why:"A sand spit between the lagoon and the ocean that you reach by canoe — a two-minute paddle that makes it feel much further from Accra than it is. Clean sand, loungers, no hawkers.",
+      why:"A sand spit between the lagoon and the ocean that you reach by canoe. The paddle takes two minutes and makes the place feel much further from Accra than it is. Clean sand, loungers, no hawkers.",
       how:"Tro-tro from Kaneshie towards Kokrobite/Bortianor (GH₵ 10–15), then a short taxi. Bolt is about GH₵ 70–90 each way. Entry around GH₵ 60–80, which includes the canoe.",
       tip:"The entry fee is per person and often includes a drink. Weekdays it is nearly empty; Sundays it is a wedding party." },
 
@@ -1130,19 +1197,19 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       when:"Friday and Saturday nights",
       why:"Thirty kilometres west and a different country: reggae, palm trees, cheap beach huts, and the Academy of African Music and Arts where you can take drumming and dance lessons from people who have been doing it their whole lives. Big Milly's Backyard has been the backpacker anchor for decades and has live drumming on Fridays.",
       how:"Tro-tro from Kaneshie station (GH₵ 12–18, about an hour), then a shared taxi down to the beach. Bolt runs it for GH₵ 90–130.",
-      tip:"Stay the night rather than day-tripping — the whole point is the evening. Do not walk the beach alone after dark, and do not leave a bag on the sand while you swim." },
+      tip:"Stay the night rather than day-tripping. The evening is the whole point. Do not walk the beach alone after dark, and do not leave a bag on the sand while you swim." },
 
     { id:"osucastle", n:"Osu Castle (Christiansborg)", a:"Osu", r:"accra", lat:5.5460, lon:-0.1830, t:["roots"], d:0.2, cost:100, tr:50, star:1,
       when:"Weekdays, booking ahead",
-      why:"A Danish slave fort that became the seat of government for three centuries and is now a museum. Less visited and less polished than Cape Coast, which is exactly why it is interesting.",
-      how:"Bolt to Osu, about GH₵ 30. Access can require arranging ahead — ask reception to check before you set off.",
+      why:"A Danish slave fort that became the seat of government for three centuries and is now a museum. Less visited and less polished than Cape Coast, and better for it.",
+      how:"Bolt to Osu, about GH₵ 30. Access can need arranging ahead, so ask reception to check before you set off.",
       tip:"Opening arrangements change with the political weather. Always confirm the same morning." },
 
     /* ------------------------ OUT OF THE CITY ---------------------- */
     { id:"aburi", n:"Aburi Botanical Gardens", a:"Akuapem hills", r:"east", lat:5.8500, lon:-0.1780, t:["chill","wild","craft"], d:0.6, cost:40, tr:70, star:2,
       when:"Any morning",
       why:"Colonial-era gardens 400 metres up in the hills, where the air is ten degrees cooler and the drive up the Aburi road is half the pleasure. Vast silk-cotton trees, a strawberry-coloured avenue of royal palms, and the wood carvers' road just outside the gate.",
-      how:"Tro-tro from 37 Station towards Aburi, GH₵ 12–18, about an hour and a bit. Ask reception for the tro-tro from Circle to 37 first — it's GH₵ 4.",
+      how:"Tro-tro from 37 Station towards Aburi, GH₵ 12–18, about an hour and a bit. Ask reception for the tro-tro from Circle to 37 first. That one is GH₵ 4.",
       tip:"Buy your carvings on the road outside the gardens, not in Accra: same work, a third of the price, and you can watch it being made." },
 
     { id:"shai", n:"Shai Hills Resource Reserve", a:"Doryumu", r:"east", lat:5.9080, lon:0.0530, t:["wild","hike"], d:0.7, cost:120, tr:110, star:2,
@@ -1155,11 +1222,11 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       when:"June–October, when there's water",
       why:"Twin waterfalls that meet in the wet season and are said to be male and female, reached by 250 steps down through forest. Half an hour's walk away is Umbrella Rock, a mushroom of stone you can stand on top of, and a three-headed palm tree.",
       how:"Tro-tro from Tudu to Koforidua (GH₵ 25–35, two hours), then a shared taxi to Boti. Long enough that it is a full day out.",
-      tip:"Almost dry from January to April. Take the guide at the gate for Umbrella Rock — the path is not obvious and the view from the top is the reason you came." },
+      tip:"Almost dry from January to April. Take the guide at the gate for Umbrella Rock. The path is not obvious, and the view from the top is the reason you came." },
 
     { id:"cedibeads", n:"Cedi Bead Factory & Agomanya market", a:"Odumase Krobo", r:"east", lat:6.0980, lon:0.0250, t:["craft"], d:0.8, cost:50, tr:130, star:2,
       when:"Bead market Wednesdays and Saturdays",
-      why:"Krobo glass beads are made by crushing bottles to powder, layering them in clay moulds and firing them — a technique centuries old. At Cedi's you watch the whole process and make your own strand; at Agomanya you walk through a market that is nothing but beads.",
+      why:"Krobo glass beads are made by crushing bottles to powder, layering them in clay moulds and firing them, a technique centuries old. At Cedi's you watch the whole process and make your own strand; at Agomanya you walk through a market that is nothing but beads.",
       how:"Tro-tro from Tudu towards Somanya/Odumase, GH₵ 20–30, about two hours. Ask for Cedi Beads at Odumase.",
       tip:"Do the workshop in the morning, the market after. Bring cash; there is no card machine within twenty kilometres of a bead." },
 
@@ -1167,41 +1234,41 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       when:"Sunday, for the boat",
       why:"The dam that made the world's largest man-made lake and powers most of the country. On Sundays a boat runs out to Dodi Island with a live band on board, which is either the best or the worst thing you will do in Ghana, depending on your tolerance for other people's fun.",
       how:"Tro-tro from Tudu to Akosombo, GH₵ 25–35, around two hours.",
-      tip:"The dam itself needs permission to visit properly; the lake and the boat do not. Book the Sunday boat ahead in December." },
+      tip:"The dam itself needs permission to visit; the lake and the boat do not. Book the Sunday boat ahead in December." },
 
     { id:"ada", n:"Ada Foah & the Volta estuary", a:"Ada", r:"east", lat:5.7830, lon:0.6330, t:["beach","chill","wild"], d:1.5, cost:150, tr:150, star:3,
       when:"Any weekend; October–March best",
       why:"Where the Volta River finally meets the Atlantic: a sandbar of palm-thatched eco-lodges with river on one side and ocean on the other. Kayak the mangroves, get a canoe to a sand island, watch turtles nest between November and February, and sleep to the sound of both bodies of water.",
       how:"Tro-tro from Tudu or Tema Station to Ada Foah, GH₵ 30–45, two to three hours. From Ada, a boat out to the lodges.",
-      tip:"An overnight, not a day trip — the point is the sunset and the sunrise. The Ada Easter regatta and the Asafotufiami festival in August both take over the town." },
+      tip:"An overnight, not a day trip. The sunset and the sunrise are the point. The Ada Easter regatta and the Asafotufiami festival in August both take over the town." },
 
     { id:"dzita", n:"Dzita & Meet Me There", a:"Dzita, Volta coast", r:"east", lat:5.8320, lon:0.7600, t:["beach","chill"], d:1.5, cost:120, tr:160, star:1,
       when:"Any time; quietest midweek",
-      why:"A not-for-profit lodge on an empty stretch of coast between two fishing villages, funding a local education and sanitation charity. Fishermen singing at dawn, no road noise, and one of the few places in Ghana where you can genuinely do nothing.",
+      why:"A not-for-profit lodge on an empty stretch of coast between two fishing villages, funding a local education and sanitation charity. Fishermen singing at dawn, no road noise, and one of the few places in Ghana where doing nothing comes easily.",
       how:"Tro-tro from Tudu towards Sogakope or Anloga and ask for Dzita, GH₵ 35–50, about three hours.",
-      tip:"Join the morning net-pulling with the village if you're offered — it is hard work and the best hour of the trip." },
+      tip:"Join the morning net-pulling with the village if you are offered. It is hard work and the best hour of the trip." },
 
     { id:"kwahu", n:"Kwahu at Easter", a:"Atibie / Odweanoma", r:"east", lat:6.6100, lon:-0.7300, t:["hike","music"], d:2, cost:400, tr:180, star:2,
       when:"Easter weekend only",
-      why:"Ghana's biggest domestic party. The whole country drives up to the Kwahu plateau for four days of street jams, and paragliders launch off Odweanoma Mountain with passengers strapped to them — you can fly tandem with no experience at all.",
+      why:"Ghana's biggest domestic party. The whole country drives up to the Kwahu plateau for four days of street jams, and paragliders launch off Odweanoma Mountain with passengers strapped to them. You can fly tandem with no experience at all.",
       how:"Tro-tro from Neoplan station at Circle towards Nkawkaw (GH₵ 45–70, three hours), then a taxi up the escarpment.",
-      tip:"Book a bed weeks ahead or plan to sleep badly. Tandem flights sell out on the first morning — get to the launch site early." },
+      tip:"Book a bed weeks ahead or plan to sleep badly. Tandem flights sell out on the first morning, so get to the launch site early." },
 
     /* --------------------------- CENTRAL --------------------------- */
     { id:"capecoast", n:"Cape Coast Castle", a:"Cape Coast", r:"central", lat:5.1040, lon:-1.2420, t:["roots"], d:0.5, cost:60, tr:220, star:3,
-      when:"Opens 9am — be there at 9am",
+      when:"Opens 9am, and 9am is when to be there",
       why:"A white fort over a fishing beach, and beneath it the dungeons where thousands of people were held before being taken through the Door of No Return. The guided tour is unflinching and it is the reason many people come to Ghana at all. There is a church directly above the men's dungeon; the guide will make sure you understand what that means.",
-      how:"Coach from Kaneshie or Circle towards Cape Coast, GH₵ 60–100, three to four hours. Stay the night in Cape Coast — do not try to do castle, Elmina and Kakum from Accra in one day, whatever a tour operator tells you.",
+      how:"Coach from Kaneshie or Circle towards Cape Coast, GH₵ 60–100, three to four hours. Stay the night in Cape Coast. Do not try to do the castle, Elmina and Kakum from Accra in one day, whatever a tour operator tells you.",
       tip:"Take the official guide, not a freelancer at the gate. Give yourself an hour afterwards to sit on the sea wall before you speak to anyone. Entry is roughly GH₵ 40–60 for non-Ghanaians." },
 
     { id:"elmina", n:"Elmina Castle & fishing harbour", a:"Elmina", r:"central", lat:5.0840, lon:-1.3490, t:["roots","city"], d:0.5, cost:60, tr:230, star:3,
       when:"Morning, with the harbour at full tilt",
       why:"St George's Castle is the oldest European building south of the Sahara, built by the Portuguese in 1482. Below it is a harbour packed so tight with painted canoes that you cannot see water, and the noise and colour of it right underneath that history is the most complicated feeling this country offers.",
       how:"Shared taxi from Cape Coast, twenty minutes, GH₵ 8–15. Do both castles on consecutive mornings, not the same one.",
-      tip:"Climb the bridge over the harbour before the castle. Also worth asking about the posuban shrines — the wildly decorated Fante military shrines around town that almost no visitor sees." },
+      tip:"Climb the bridge over the harbour before the castle. Ask about the posuban shrines too: the wildly decorated Fante military shrines around town that almost no visitor sees." },
 
     { id:"kakum", n:"Kakum canopy walkway", a:"Kakum National Park", r:"central", lat:5.3500, lon:-1.3800, t:["wild","hike"], d:0.5, cost:95, tr:240, star:3,
-      when:"Gates from 6am — the first slot is the only good slot",
+      when:"Gates from 6am, and the first slot is the only good one",
       why:"Seven rope bridges strung between emergent trees, forty metres above a rainforest floor you cannot see. It is not a viewing platform, it is a walk, and it sways. Below is genuine primary forest with forest elephants, though you'll hear far more than you see.",
       how:"Shared taxi or tro-tro from Cape Coast towards Abrafo, GH₵ 15–25, about forty minutes. Gate fee plus canopy walk runs to roughly GH₵ 95 for visitors.",
       tip:"Be at the gate for opening. By ten it is coach parties and a queue on the bridges, and the wildlife has gone quiet. The night walk and the tree platform stay are both bookable and both underrated." },
@@ -1210,19 +1277,19 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       when:"On the way to or from Cape Coast",
       why:"The river where enslaved people were washed for the last time before the final march to the coast, and where two returned ancestors are now buried. Quieter and rawer than the castles. Many people find it harder.",
       how:"It is directly on the Accra–Cape Coast road; any coach will drop you at Assin Manso. Combine it with the castle day.",
-      tip:"Go here before the castles if you can. The order the journey actually happened in makes the castles land differently." },
+      tip:"Go here before the castles if you can. Taking it in the order the journey happened makes the castles land differently." },
 
     { id:"anomabo", n:"Anomabo beach & Fort William", a:"Anomabo", r:"central", lat:5.1700, lon:-1.1180, t:["beach","roots","chill"], d:1, cost:40, tr:200, star:1,
       when:"Any time",
       why:"A long empty beach with a fort at one end and a fishing village at the other, thirty minutes short of Cape Coast. The place to decompress after two days of dungeons.",
-      how:"Any Cape Coast coach passes through — ask to be dropped at Anomabo junction.",
-      tip:"Anomabo was one of the busiest slave-trading ports on the whole coast. The village is full of it if you ask; the beach hides it entirely." },
+      how:"Any Cape Coast coach passes through. Ask to be dropped at Anomabo junction.",
+      tip:"Anomabo was one of the busiest slave-trading ports on the whole coast. The village is full of that history if you ask. The beach hides all of it." },
 
     { id:"winneba", n:"Winneba", a:"Winneba", r:"central", lat:5.3510, lon:-0.6250, t:["beach","craft"], d:0.6, cost:20, tr:100, star:1,
       when:"First Saturday in May for Aboakyer",
       why:"A quiet university town with a wide beach, and once a year the Aboakyer festival: two asafo companies race into the bush to catch a live antelope with their bare hands, and the town goes properly wild.",
       how:"Tro-tro from Kaneshie towards Winneba, GH₵ 20–30, ninety minutes.",
-      tip:"Outside festival week there is not a great deal to do, which is exactly the appeal if you have just done Accra." },
+      tip:"Outside festival week there is not a great deal to do, which is the appeal after a week of Accra." },
 
     { id:"brenu", n:"Brenu Akyinim beach", a:"near Elmina", r:"central", lat:5.0700, lon:-1.4400, t:["beach","chill"], d:0.5, cost:30, tr:240, star:1,
       when:"Weekdays",
@@ -1233,13 +1300,13 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     /* ---------------------------- WEST ----------------------------- */
     { id:"busua", n:"Busua Beach & surf school", a:"Busua", r:"west", lat:4.7975, lon:-1.9370, t:["beach","chill","music"], d:2, cost:80, tr:280, star:3,
       when:"Year round; biggest swell July–September",
-      why:"Ghana's surf town, and the friendliest place on this coast. Ahanta Waves — the first Ghanaian-owned surf school, started by a Busua local — will get you standing up in an afternoon for around GH₵ 60–80 a lesson. The rest of the day is a beach with bonfires, cheap lodges and a village that hasn't been swallowed by any of it.",
+      why:"Ghana's surf town, and the friendliest place on this coast. Ahanta Waves, the first Ghanaian-owned surf school and started by a man from Busua, will get you standing up in an afternoon for around GH₵ 60–80 a lesson. The rest of the day is a beach with bonfires, cheap lodges and a village that hasn't been swallowed by any of it.",
       how:"Coach from Circle or Kaneshie to Takoradi (GH₵ 80–130, five hours), then a tro-tro to Agona junction and a shared taxi down to Busua.",
       tip:"Two nights minimum. Walk to Dixcove and its 17th-century fort at low tide, and eat wherever the guys at the surf school eat." },
 
     { id:"capethreepoints", n:"Cape Three Points", a:"Ahanta West", r:"west", lat:4.7450, lon:-2.0880, t:["hike","beach","wild"], d:0.7, cost:60, tr:300, star:2,
       when:"Dry season, when the track is passable",
-      why:"The southernmost point of Ghana — the closest land in the world to the intersection of the equator and the prime meridian — with a lighthouse on a headland, forest behind it and nobody there.",
+      why:"The southernmost point of Ghana, and the closest land in the world to where the equator meets the prime meridian. A lighthouse on a headland, forest behind it, and nobody there.",
       how:"From Busua, a shared taxi or motorbike via Agona and Princess Town. Rough road; the last stretch is a track.",
       tip:"Go as a day trip out of Busua with a driver who will wait. The lighthouse keeper will show you up for a tip." },
 
@@ -1251,15 +1318,15 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
 
     { id:"nzulezu", n:"Nzulezu stilt village", a:"Beyin, Western", r:"west", lat:5.0250, lon:-2.5600, t:["wild","craft","chill"], d:1, cost:120, tr:330, star:3,
       when:"Dry season; canoe runs year round",
-      why:"An entire village built on stilts over Lake Tadane, reached by an hour's paddle through a channel in the reeds. People have lived out here for around five centuries. The paddle in — silent, green, low — is as good as the village.",
+      why:"An entire village built on stilts over Lake Tadane, reached by an hour's paddle through a channel in the reeds. People have lived out here for around five centuries. The paddle in is as good as the village: silent, green, low to the water.",
       how:"From Busua or Takoradi, tro-tro west to Beyin (GH₵ 30–50), where the community tourism office sells the canoe trip and guide.",
-      tip:"Go early; the paddlers stop in the afternoon. It is a living village — ask before photographing anybody, and buy something from the shop at the far end." },
+      tip:"Go early; the paddlers stop in the afternoon. It is a living village, so ask before photographing anybody, and buy something from the shop at the far end." },
 
     { id:"ankasa", n:"Ankasa Conservation Area", a:"Western", r:"west", lat:5.2600, lon:-2.6400, t:["wild","hike"], d:1.5, cost:150, tr:340, star:1,
       when:"Dry season; it is rainforest, so bring rain",
-      why:"Ghana's wettest and most biodiverse rainforest, up against the Ivorian border: bongo, forest elephant, Diana monkey, and around 600 butterfly species. Barely visited, properly wild, and you will need a guide.",
+      why:"Ghana's wettest and most biodiverse rainforest, up against the Ivorian border: bongo, forest elephant, Diana monkey, and around 600 butterfly species. Barely visited, seriously wild, and you will need a guide.",
       how:"Tro-tro from Takoradi towards Elubo and ask for Ankasa gate. Camping and basic huts inside.",
-      tip:"Two nights or don't bother — the good trails and the Bamboo Cathedral need a full day each." },
+      tip:"Two nights or do not bother. The good trails and the Bamboo Cathedral need a full day each." },
 
     { id:"axim", n:"Axim & Fort St Anthony", a:"Axim", r:"west", lat:4.8680, lon:-2.2400, t:["roots","beach"], d:0.5, cost:40, tr:310, star:1,
       when:"On the way to Beyin",
@@ -1276,31 +1343,31 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     /* -------------------------- ASHANTI ---------------------------- */
     { id:"manhyia", n:"Manhyia Palace Museum", a:"Kumasi", r:"ashanti", lat:6.7055, lon:-1.6180, t:["roots","craft"], d:0.3, cost:80, tr:200, star:3,
       when:"Daily; go for an Akwasidae if you can",
-      why:"The palace of the Asantehene, king of the Asante, whose court still functions as it has for three hundred years. Gold regalia, the Golden Stool's story, and the war with the British told from the Asante side — which is not the version you were taught.",
+      why:"The palace of the Asantehene, king of the Asante, whose court still functions as it has for three hundred years. Gold regalia, the Golden Stool's story, and the war with the British told from the Asante side, which is not the version you were taught.",
       how:"Coach from Circle or Neoplan to Kumasi (GH₵ 120–200, four to five hours), then a taxi.",
-      tip:"Every sixth Sunday is Akwasidae, when the king holds court in public and the drums, umbrellas and gold come out. Ask reception for the next date — it is the single best cultural day in Ghana." },
+      tip:"Every sixth Sunday is Akwasidae, when the king holds court in public and the drums, umbrellas and gold come out. Ask reception for the next date. It is the best cultural day in the country." },
 
     { id:"kejetia", n:"Kejetia Market", a:"Kumasi", r:"ashanti", lat:6.6960, lon:-1.6220, t:["city","food","craft"], d:0.4, cost:0, tr:200, star:3,
       when:"Any weekday morning",
-      why:"One of the largest markets in West Africa — tens of thousands of stalls, now half rehoused in an enormous new building and half still sprawling across the old ground. You will get lost. That is what it is for.",
+      why:"One of the largest markets in West Africa. Tens of thousands of stalls, now half rehoused in an enormous new building and half still sprawling across the old ground. You will get lost. That is what it is for.",
       how:"Central Kumasi, walkable from most of the city's lodgings.",
       tip:"Hire a boy to guide you for a few cedis rather than fighting it alone. Go with a plan for what you're buying, or you will come out with nothing but a story." },
 
     { id:"bonwire", n:"Bonwire kente village", a:"near Kumasi", r:"ashanti", lat:6.7800, lon:-1.4900, t:["craft"], d:0.4, cost:60, tr:230, star:3,
       when:"Weekday mornings, when looms are running",
-      why:"The village where kente comes from. Narrow strips woven on hand looms by men who learned it from their fathers, each pattern carrying a name and a proverb. Sit down at a loom and try — you will be bad at it, and they will enjoy that.",
+      why:"The village where kente comes from. Narrow strips woven on hand looms by men who learned it from their fathers, each pattern carrying a name and a proverb. Sit down at a loom and try. You will be bad at it, and they will enjoy that.",
       how:"Tro-tro from Kumasi towards Effiduase and ask for Bonwire, GH₵ 10–20, forty minutes.",
-      tip:"Real kente is heavy, hand-woven in strips and expensive. The cheap stuff is machine-printed and there is nothing wrong with buying it — just know which you're buying, and ask what the pattern means." },
+      tip:"Real kente is heavy, hand-woven in strips and expensive. The cheap stuff is machine-printed and there is nothing wrong with buying it. Just know which one you are buying, and ask what the pattern means." },
 
     { id:"ntonso", n:"Ntonso adinkra village", a:"near Kumasi", r:"ashanti", lat:6.8480, lon:-1.6320, t:["craft","art"], d:0.3, cost:60, tr:230, star:2,
       when:"Weekdays",
-      why:"Adinkra symbols — the visual proverbs you'll see on everything in Ghana — are stamped with hand-carved calabash blocks and a black dye boiled from badie bark. At Ntonso you see the bark boiled and stamp your own cloth with the symbols you choose.",
+      why:"Adinkra symbols are the visual proverbs you will see on everything in Ghana. They are stamped with hand-carved calabash blocks and a black dye boiled from badie bark. At Ntonso you see the bark boiled and stamp your own cloth with the symbols you choose.",
       how:"Tro-tro from Kumasi towards Mampong, GH₵ 10–20, thirty-five minutes.",
-      tip:"Pick your symbols for their meanings, not their looks — <em>gye nyame</em>, <em>sankofa</em>, <em>dwennimmen</em> all say something. Your guide will explain each. It makes the best gift you'll bring home." },
+      tip:"Pick your symbols for their meanings rather than their looks. <em>Gye nyame</em>, <em>sankofa</em> and <em>dwennimmen</em> all say something, and your guide will explain each one. It makes the best gift you'll bring home." },
 
     { id:"ahwiaa", n:"Ahwiaa wood carvers' village", a:"near Kumasi", r:"ashanti", lat:6.7690, lon:-1.6120, t:["craft"], d:0.2, cost:20, tr:220, star:1,
       when:"Weekdays",
-      why:"A single road lined with carvers making Asante stools — the object at the centre of the whole culture, where every stool has a meaning and no chief sits on the wrong one.",
+      why:"A single road lined with carvers making Asante stools, the object at the centre of the whole culture. Every stool has a meaning, and no chief sits on the wrong one.",
       how:"On the Mampong road, same tro-tro as Ntonso. Do both in one morning.",
       tip:"A small stool packs flat-ish and survives a rucksack. Ask what the design means before you choose one; some are for chiefs, some for brides, one is for the dead." },
 
@@ -1308,19 +1375,19 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       when:"Daytime",
       why:"A leafy compound with the Prempeh II Jubilee Museum, a craft village of weavers, carvers and brass casters at work, and traditional Asante architecture rebuilt to scale. The easiest place to see six crafts in one afternoon.",
       how:"Central Kumasi, short taxi from anywhere in town.",
-      tip:"The lost-wax brass casters are the ones to watch — goldweights made the same way they were six hundred years ago." },
+      tip:"The lost-wax brass casters are the ones to watch, making goldweights the same way they were made six hundred years ago." },
 
     { id:"bosomtwe", n:"Lake Bosomtwe", a:"Ashanti", r:"ashanti", lat:6.5080, lon:-1.4130, t:["chill","wild","hike"], d:1, cost:50, tr:230, star:2,
       when:"Any time; best on a weekday",
-      why:"A meteorite crater filled with water, ringed by green hills and thirty villages, and sacred to the Asante — the souls of the dead are said to come here to say goodbye. Swim, kayak, walk the crater rim, sleep in a lodge on the shore.",
+      why:"A meteorite crater filled with water, ringed by green hills and thirty villages, and sacred to the Asante, who say the souls of the dead come here to say goodbye. Swim, kayak, walk the crater rim, sleep in a lodge on the shore.",
       how:"Tro-tro from Kumasi to Abono, GH₵ 12–20, an hour.",
       tip:"Traditionally, fishing is done from a single plank of wood, and there are days when the lake is not to be touched at all. Ask before you swim." },
 
     { id:"boabeng", n:"Boabeng-Fiema Monkey Sanctuary", a:"Bono East", r:"ashanti", lat:7.7180, lon:-1.7000, t:["wild"], d:0.4, cost:60, tr:260, star:2,
       when:"Early morning or late afternoon feeding",
       why:"Two villages where mona and black-and-white colobus monkeys are sacred, protected by taboo rather than by fence for at least two centuries. They live in the trees over people's houses. There is a cemetery for the monkeys.",
-      how:"On the road north from Kumasi towards Tamale — tro-tro to Nkoranza then a taxi to Fiema. A natural stop if you are heading to Mole overland.",
-      tip:"Come at feeding time and the monas will sit on you. Colobus are shyer and stay high — bring something to look through." },
+      how:"On the road north from Kumasi towards Tamale. Tro-tro to Nkoranza, then a taxi to Fiema. A natural stop if you are heading to Mole overland.",
+      tip:"Come at feeding time and the monas will sit on you. Colobus are shyer and stay high, so bring something to look through." },
 
     { id:"kintampo", n:"Kintampo Falls", a:"Bono East", r:"ashanti", lat:8.0570, lon:-1.7280, t:["hike","chill"], d:0.25, cost:40, tr:280, star:1,
       when:"Wet season, when it is running hard",
@@ -1333,13 +1400,13 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       when:"June–October for volume; any time for the walk",
       why:"The tallest waterfall in West Africa, dropping off an escarpment into a pool you can swim in, with thousands of fruit bats wheeling over the cliff above it. The lower falls are a flat forty-minute stroll. The upper falls are a serious two-hour climb over the ridge, and worth every step.",
       how:"Coach or tro-tro from Tudu to Hohoe (GH₵ 50–80, four to five hours), then a shared taxi to Wli, GH₵ 10–15. Guide fee at the visitor centre is compulsory and cheap.",
-      tip:"Do the upper falls in the morning and the lower in the afternoon. Take shoes with grip and something dry in a bag — you will get soaked at the bottom whether you swim or not." },
+      tip:"Do the upper falls in the morning and the lower in the afternoon. Take shoes with grip and something dry in a bag. You will get soaked at the bottom whether you swim or not." },
 
     { id:"afadja", n:"Mount Afadja (Afadjato)", a:"Liati Wote", r:"volta", lat:6.9670, lon:0.5900, t:["hike"], d:0.5, cost:60, tr:200, star:2,
       when:"Start before 8am",
       why:"Ghana's highest mountain at 885 metres, straight up through farmland and forest to a summit looking into Togo. Three to four hours return, steep the whole way, and genuinely hard in the heat.",
       how:"Shared taxi from Hohoe to Liati Wote, GH₵ 15–25. A guide from the village office is required, around GH₵ 30–40.",
-      tip:"Combine it with Tagbo Falls in the same village — climb in the morning, swim under the falls in the afternoon. Take two litres of water each; there is nothing on the mountain." },
+      tip:"Combine it with Tagbo Falls in the same village: climb in the morning, swim under the falls in the afternoon. Take two litres of water each; there is nothing on the mountain." },
 
     { id:"tafiatome", n:"Tafi Atome Monkey Sanctuary", a:"Tafi Atome", r:"volta", lat:6.9230, lon:0.4390, t:["wild","chill"], d:0.3, cost:60, tr:190, star:2,
       when:"Early morning feeding",
@@ -1356,12 +1423,12 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     { id:"tagbo", n:"Tagbo Falls", a:"Liati Wote", r:"volta", lat:7.0300, lon:0.5860, t:["hike","chill"], d:0.4, cost:50, tr:200, star:1,
       when:"Wet season",
       why:"A quieter, mossier waterfall than Wli reached through cocoa farms and stream crossings, with a cold pool at the base and usually nobody else in it.",
-      how:"Same village as Afadjato — Liati Wote, shared taxi from Hohoe. Village guide required.",
+      how:"Same village as Afadjato. Liati Wote, shared taxi from Hohoe. Village guide required.",
       tip:"If Wli was full of coaches, this is the antidote. Forty-five minutes each way." },
 
     { id:"ho", n:"Ho & Mount Adaklu", a:"Ho", r:"volta", lat:6.6010, lon:0.4710, t:["city","hike"], d:1, cost:40, tr:150, star:1,
       when:"Any time",
-      why:"The Volta regional capital: a relaxed town with a good market, a museum, and Mount Adaklu rising out of the plain south of it — a hot, steep, two-hour climb with a huge view at the top.",
+      why:"The Volta regional capital: a relaxed town with a good market, a museum, and Mount Adaklu rising out of the plain south of it, a hot and steep two-hour climb with a huge view at the top.",
       how:"Coach or tro-tro from Tudu to Ho, GH₵ 40–60, three hours. The natural base for the whole region.",
       tip:"Base yourself in Ho for two nights and day-trip Amedzofe and Tafi Atome, then move up to Hohoe for Wli." },
 
@@ -1374,51 +1441,51 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     /* ---------------------------- NORTH ---------------------------- */
     { id:"mole", n:"Mole National Park", a:"Damongo, Savannah", r:"north", lat:9.2600, lon:-1.8500, t:["wild","hike"], d:2.5, cost:250, tr:420, star:3,
       when:"Dry season, January–April, when animals come to the waterholes",
-      why:"Ghana's great park: 4,800 square kilometres of savannah with elephants, roan antelope, warthogs, baboons and around 300 bird species. The walking safari is the thing — an armed ranger, on foot, at 6.30am, getting you close enough to elephants that you can hear them eat. The lodge sits on an escarpment over two waterholes, so you can watch elephants from the pool.",
+      why:"Ghana's great park: 4,800 square kilometres of savannah with elephants, roan antelope, warthogs, baboons and around 300 bird species. The walking safari is the thing to do: an armed ranger, on foot, at 6.30am, getting you close enough to elephants that you can hear them eat. The lodge sits on an escarpment over two waterholes, so you can watch elephants from the pool.",
       how:"Long. Overnight coach from Neoplan station at Circle to Tamale (GH₵ 180–280, twelve hours), then a bus or shared taxi to Damongo and the park gate (three hours). Or fly Accra–Tamale in an hour for GH₵ 700–1,200 and save a day each way.",
       tip:"Two nights minimum: two morning walking safaris and one afternoon drive. Book the walk the evening before at the gate. The elephants are most reliable January to April, when the water is scarce." },
 
     { id:"larabanga", n:"Larabanga Mosque", a:"Larabanga", r:"north", lat:9.2180, lon:-1.8580, t:["roots","craft"], d:0.15, cost:50, tr:420, star:2,
       when:"On the way in or out of Mole",
-      why:"A small mud-and-stick mosque, whitewashed, buttressed and pyramid-towered, in the Sudanese style — one of the oldest in West Africa and the most striking building in the country. There is a stone beside the road that they say could not be moved.",
+      why:"A small mud-and-stick mosque, whitewashed, buttressed and pyramid-towered, in the Sudanese style. One of the oldest in West Africa, and the most striking building in the country. There is a stone beside the road that they say could not be moved.",
       how:"Six kilometres from Mole gate; every vehicle passes it. Non-Muslims view from outside.",
-      tip:"There is a set community fee and a guide — pay it at the village office rather than to whoever approaches you first. Dress covered." },
+      tip:"There is a set community fee and a guide. Pay at the village office rather than to whoever approaches you first. Dress covered." },
 
     { id:"mognori", n:"Mognori Eco Village canoe safari", a:"near Mole", r:"north", lat:9.2320, lon:-1.7700, t:["wild","chill","craft"], d:0.4, cost:80, tr:420, star:2,
       when:"Late afternoon, on the river",
       why:"A village on the edge of Mole running its own tourism: a dugout canoe down the river past crocodiles and kingfishers, a shea butter demonstration, and a night of drumming if you stay. The money stays in the village.",
       how:"Arranged at Mole motel reception or directly with the village, a short drive from the park gate.",
-      tip:"Do this on your non-safari afternoon. The shea butter is worth buying — it is made in front of you and costs a fraction of Accra prices." },
+      tip:"Do this on your non-safari afternoon. Buy the shea butter. It is made in front of you and costs a fraction of Accra prices." },
 
     { id:"paga", n:"Paga Crocodile Pond", a:"Paga, Upper East", r:"north", lat:10.9820, lon:-1.1100, t:["wild"], d:0.25, cost:100, tr:520, star:2,
       when:"Any time; they're always there",
-      why:"Sacred crocodiles that the village believes carry the souls of ancestors, and which have therefore never been hunted for centuries. A guide calls one out of the water with a live chicken and you sit behind it holding its tail. It is completely mad and entirely real.",
+      why:"Sacred crocodiles that the village believes carry the souls of ancestors, and which have therefore never been hunted for centuries. A guide calls one out of the water with a live chicken and you sit behind it holding its tail. It is completely mad, and completely real.",
       how:"From Bolgatanga, shared taxi or tro-tro north to Paga, GH₵ 15–25, forty minutes. Right on the Burkina border.",
-      tip:"The fee covers the guide and the chicken. Also here: the Pikworo slave camp, a rock outcrop where captives were held and where the auction block still stands — sobering and almost unvisited." },
+      tip:"The fee covers the guide and the chicken. Also here: the Pikworo slave camp, a rock outcrop where captives were held and where the auction block still stands. Sobering, and almost nobody goes." },
 
     { id:"sirigu", n:"Sirigu painted houses (SWOPA)", a:"Sirigu, Upper East", r:"north", lat:10.8700, lon:-0.9200, t:["craft","art"], d:0.4, cost:60, tr:510, star:2,
       when:"Any time; harvest season is liveliest",
       why:"The women of Sirigu paint the walls of their compounds with geometric patterns in earth pigments, a tradition passed mother to daughter. The women's organisation runs a gallery, a guesthouse and workshops where you paint a wall yourself.",
       how:"Shared taxi from Bolgatanga, GH₵ 15–25, thirty minutes.",
-      tip:"Stay in the SWOPA guesthouse — round mud rooms, painted inside, and dinner cooked by the co-operative." },
+      tip:"Stay in the SWOPA guesthouse: round mud rooms, painted inside, and dinner cooked by the co-operative." },
 
     { id:"tongo", n:"Tongo Hills & Tengzug shrine", a:"Upper East", r:"north", lat:10.6900, lon:-0.7800, t:["hike","roots"], d:0.5, cost:60, tr:500, star:2,
       when:"Morning, before the rock heats up",
-      why:"A landscape of balancing granite boulders with a Talensi settlement built into it, and at the top the Tengzug shrine — one of the most important in the region, still very much in use.",
+      why:"A landscape of balancing granite boulders with a Talensi settlement built into it, and at the top the Tengzug shrine, one of the most important in the region and still very much in use.",
       how:"Shared taxi from Bolgatanga to Tongo, GH₵ 10–20, then a guide from the village.",
       tip:"Men are traditionally asked to enter the shrine bare-chested. Take the village guide; wandering up alone is both rude and pointless." },
 
     { id:"bolga", n:"Bolgatanga craft market", a:"Bolgatanga", r:"north", lat:10.7860, lon:-0.8510, t:["craft","city"], d:0.3, cost:0, tr:490, star:2,
-      when:"Market days run on a three-day cycle — ask",
-      why:"Where the Bolga basket comes from — the tough, hand-woven straw baskets sold for four times the price in every design shop in Europe. Also leather, smocks and the best straw hats in Ghana.",
+      when:"Market days run on a three-day cycle, so ask",
+      why:"Where the Bolga basket comes from: the tough hand-woven straw baskets sold for four times the price in every design shop in Europe. Also leather, smocks and the best straw hats in Ghana.",
       how:"Bolgatanga is the Upper East capital; coaches from Tamale, GH₵ 60–90, three hours.",
-      tip:"Buy baskets here and nowhere else. Squash them flat in your pack — they pop back into shape. The traditional smock, worn by Nkrumah, is also made here." },
+      tip:"Buy baskets here and nowhere else. Squash them flat in your pack and they pop back into shape. The traditional smock, worn by Nkrumah, is also made here." },
 
     { id:"tamale", n:"Tamale", a:"Northern Region", r:"north", lat:9.4030, lon:-0.8400, t:["city","food"], d:0.5, cost:0, tr:380, star:1,
       when:"Any time; Damba festival in the Islamic calendar",
       why:"The north's biggest city and a completely different Ghana: mostly Muslim, mostly Dagomba, flat and hot, and moving on a hundred thousand motorbikes. Good street food, a huge central market, and the gateway to everything above it.",
       how:"Overnight coach from Neoplan at Circle (GH₵ 180–280, twelve hours) or an hour's flight.",
-      tip:"Rent a motorbike or take the yellow-yellow (motor tricycle) rather than walking — the city is spread out and the sun is not a joke. Try tuo zaafi, the northern staple." },
+      tip:"Rent a motorbike or take the yellow-yellow (motor tricycle) rather than walking. The city is spread out and the sun is not a joke. Try tuo zaafi, the northern staple." },
 
     { id:"wechiau", n:"Wechiau Hippo Sanctuary", a:"Upper West", r:"north", lat:9.7800, lon:-2.6900, t:["wild","chill"], d:1.5, cost:150, tr:520, star:1,
       when:"November–April, when hippos are visible",
@@ -1435,13 +1502,13 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         { d:"Day 1 am", n:"Nkrumah Memorial Park, then Jamestown", p:"Start with independence, then walk into the oldest part of the city with a Bukom guide. Climb the lighthouse before you leave.", hop:"Tro-tro from Circle to Accra Central · GH₵ 5" },
         { d:"Day 1 pm", n:"Makola, then Osu after dark", p:"Fabric and noise in the afternoon; kelewele, grilled tilapia and a band at Republic in the evening.", hop:"Bolt Central → Osu · GH₵ 30" },
         { d:"Day 2 am", n:"National Museum and the Arts Centre", p:"Goldweights and stools in the morning, then bargain badly for a drum. Both are ten minutes from your bed.", hop:"Walk, 20 min" },
-        { d:"Day 2 pm", n:"Black Star Square, then Labadi", p:"Sunset at the arch, then the beach — and if it's Sunday, the live band and the horses.", hop:"Tro-tro to La · GH₵ 8" }
+        { d:"Day 2 pm", n:"Black Star Square, then Labadi", p:"Sunset at the arch, then the beach. If it is Sunday, the live band and the horses too.", hop:"Tro-tro to La · GH₵ 8" }
       ] },
 
     { id:"r2", n:"The Coast Run", days:"4–5 days", cost:"≈ GH₵ 2,400", t:["roots","beach","wild"],
       blurb:"The trip most people come to Ghana for: the castles, the canopy walkway, and then a surfboard to recover on. West along one road.",
       legs:[
-        { d:"Day 1", n:"Accra → Cape Coast", p:"Morning coach. Stop at Assin Manso on the way — the river where people were washed before the final march. Arrive, sleep, don't do the castle today.", hop:"Coach from Kaneshie · GH₵ 60–100 · 4 hrs" },
+        { d:"Day 1", n:"Accra → Cape Coast", p:"Morning coach. Stop at Assin Manso on the way, the river where people were washed before the final march. Arrive, sleep, don't do the castle today.", hop:"Coach from Kaneshie · GH₵ 60–100 · 4 hrs" },
         { d:"Day 2", n:"Cape Coast Castle, then Elmina", p:"Be at the castle gate at nine. Afternoon in Elmina for St George's and the harbour full of canoes.", hop:"Shared taxi · GH₵ 10" },
         { d:"Day 3", n:"Kakum at dawn", p:"First slot on the canopy walkway, back for lunch, then a taxi to Brenu beach to sit in the sea and stop thinking.", hop:"Tro-tro to Abrafo · GH₵ 20" },
         { d:"Day 4", n:"→ Busua", p:"West to Takoradi, then down to the surf town. Lesson in the afternoon, bonfire at night.", hop:"Coach + taxi · GH₵ 60 · 3 hrs" },
@@ -1454,14 +1521,14 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         { d:"Day 1", n:"Accra → Ho", p:"Cross the Volta at Sogakope and climb into the hills. Ho is the base: market, museum, cold beer.", hop:"Tro-tro from Tudu · GH₵ 40–60 · 3 hrs" },
         { d:"Day 2", n:"Amedzofe", p:"Up to the highest village in Ghana. Mount Gemi before breakfast, Ote Falls after. Sleep up there in the cloud.", hop:"Tro-tro from Ho · GH₵ 20 · 1 hr" },
         { d:"Day 3", n:"Tafi Atome → Hohoe", p:"Mona monkeys out of the trees and onto your arm, then north to Hohoe for the night.", hop:"Shared taxi · GH₵ 25" },
-        { d:"Day 4", n:"Wli Falls, both of them", p:"Upper falls in the morning — two hard hours over the ridge — and the lower falls and the bats in the afternoon.", hop:"Shared taxi to Wli · GH₵ 15" },
+        { d:"Day 4", n:"Wli Falls, both of them", p:"Upper falls in the morning, two hard hours over the ridge. Lower falls and the bats in the afternoon.", hop:"Shared taxi to Wli · GH₵ 15" },
         { d:"Day 5", n:"Afadjato, then home", p:"Ghana's highest mountain at first light, Tagbo Falls to wash it off, then the long ride back to Circle.", hop:"Tro-tro Hohoe → Accra · GH₵ 70 · 5 hrs" }
       ] },
 
     { id:"r4", n:"North Star", days:"7–8 days", cost:"≈ GH₵ 4,200", t:["wild","craft","roots"],
       blurb:"Kumasi for the kingdom, Mole for the elephants, the Upper East for crocodiles and painted houses. The longest haul in this guide and the one people talk about afterwards.",
       legs:[
-        { d:"Day 1–2", n:"Kumasi", p:"Manhyia Palace and Kejetia market on the first day. Bonwire for kente and Ntonso for adinkra on the second — weave a strip, stamp a cloth.", hop:"Coach from Circle · GH₵ 120–200 · 5 hrs" },
+        { d:"Day 1–2", n:"Kumasi", p:"Manhyia Palace and Kejetia market on the first day. Bonwire for kente and Ntonso for adinkra on the second: weave a strip, stamp a cloth.", hop:"Coach from Circle · GH₵ 120–200 · 5 hrs" },
         { d:"Day 3", n:"Kumasi → Mole", p:"North through Kintampo. Break the journey at the falls if you can bear to.", hop:"Bus via Tamale or Damongo · 8–10 hrs" },
         { d:"Day 4–5", n:"Mole National Park", p:"Two mornings on foot with a ranger. Elephants at the waterhole from the pool in between. Mognori canoe and Larabanga mosque on the second afternoon.", hop:"Park gate · GH₵ 250 for fees and walks" },
         { d:"Day 6", n:"→ Bolgatanga", p:"East and north to the Upper East. Baskets in the craft market and a smock made to measure.", hop:"Bus via Tamale · 6 hrs" },
@@ -1491,15 +1558,15 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
   ];
 
   var MONTHS = [
-    { m:"January",   w:"Dry, hazy, harmattan off the Sahara. 24–33°C.", v:"good", e:"The clearest month. Best of the year for Mole — the waterholes are the only water left. Accra is cheap and quiet again after December." },
+    { m:"January",   w:"Dry, hazy, harmattan off the Sahara. 24–33°C.", v:"good", e:"The clearest month. Best of the year for Mole, because the waterholes are the only water left. Accra is cheap and quiet again after December." },
     { m:"February",  w:"Driest month. Hot and dusty in the north. 25–34°C.", v:"good", e:"Peak wildlife in the north, perfect coast weather. Ghana Chocolate Day on the 14th, and cocoa is worth taking seriously here." },
-    { m:"March",     w:"Heat builds. First storms in the south late in the month.", v:"mid", e:"Independence Day on the 6th — a full military parade at Black Star Square and the whole country in red, gold and green." },
+    { m:"March",     w:"Heat builds. First storms in the south late in the month.", v:"mid", e:"Independence Day on the 6th. A full military parade at Black Star Square, and the whole country in red, gold and green." },
     { m:"April",     w:"Rains arrive in the south. Hot, wet, green.", v:"mid", e:"Easter is the biggest domestic holiday of the year: Kwahu fills up, paragliders launch off Odweanoma, and Ada holds its regatta." },
-    { m:"May",       w:"Wettest stretch in the south. Downpours, then sun.", v:"wet", e:"Aboakyer in Winneba on the first Saturday — two companies race to catch a live antelope. Waterfalls start running properly." },
+    { m:"May",       w:"Wettest stretch in the south. Downpours, then sun.", v:"wet", e:"Aboakyer in Winneba on the first Saturday, when two companies race to catch a live antelope. Waterfalls start running again." },
     { m:"June",      w:"Peak rains on the coast. Cooler, grey, dramatic.", v:"wet", e:"The cheapest month to travel and the greenest to photograph. Roads in the far north get difficult." },
     { m:"July",      w:"Rains ease in the south, wet in the north.", v:"mid", e:"Bakatue in Elmina on the first Tuesday. Panafest and Emancipation, the great homecoming festivals, run late July into August in Cape Coast." },
     { m:"August",    w:"The little dry season. Cool, overcast, comfortable.", v:"good", e:"The best month for festivals: Emancipation Day on the 1st, Homowo among the Ga through the month, and Chale Wote taking over Jamestown for a weekend." },
-    { m:"September", w:"Short second rains in the south.", v:"mid", e:"Fetu Afahye in Cape Coast on the first Saturday — the biggest festival on the central coast. Damba in the north follows the Islamic calendar." },
+    { m:"September", w:"Short second rains in the south.", v:"mid", e:"Fetu Afahye in Cape Coast on the first Saturday, the biggest festival on the central coast. Damba in the north follows the Islamic calendar." },
     { m:"October",   w:"Drying out. Everything is green. 24–32°C.", v:"good", e:"The best-value month in the country: waterfalls still full, rain nearly finished, and no crowds anywhere." },
     { m:"November",  w:"Dry season proper begins. Warm and clear.", v:"good", e:"Arguably the best all-round month. Hogbetsotso at Anloga on the first Saturday, and turtle nesting starts on the western beaches." },
     { m:"December",  w:"Dry, hot days, cooler nights, harmattan arriving.", v:"good", e:"Detty December: the diaspora comes home and Accra becomes one long party. Concerts, beach raves, everything booked out. Reserve everything weeks ahead." }
@@ -1610,8 +1677,11 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
   /* --- State ------------------------------------------------------------ */
   var S = {
     tags: [], days: 7, budget: "shoestring", energy: "balanced",
-    sort: "match", view: "accra", sel: null, trip: []
+    sort: "match", view: "accra", sel: null, trip: [],
+    z: { accra: { zoom: 1, cx: 0, cy: 0, set: false },
+         ghana: { zoom: 1, cx: 0, cy: 0, set: false } }
   };
+  var ZMIN = 1, ZMAX = 12;
   try {
     var saved = localStorage.getItem("sn-trip");
     if (saved) S.trip = JSON.parse(saved);
@@ -1736,7 +1806,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       '</ul>' +
       '<div class="detail" hidden>' +
         '<div class="board"><b>Getting there from our gate</b>' + p.how +
-          '<span class="tip"><b>Chale —</b> ' + p.tip + '</span></div>' +
+          '<span class="tip"><b>Chale,</b> ' + p.tip + '</span></div>' +
       '</div>' +
       '<div class="place-actions">' +
         '<button class="mini js-more" type="button" aria-expanded="false">How to get there</button>' +
@@ -1817,12 +1887,29 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
   }
   function kmToPx(v, km) { return km / 110.6 * (v.w / (v.lon1 - v.lon0)); }
 
-  var mapbox = $("#mapbox");
+  var mapcanvas = $("#mapcanvas");
+  var suppressPinClick = false;
+
+  /* The window on to the map: a viewBox narrowed by the zoom and clamped so
+     you can never pan the country off the edge. Returns the scale factor that
+     everything drawn at a fixed screen size has to be divided by. */
+  function frame(v) {
+    var Z = S.z[S.view];
+    if (!Z.set) { Z.cx = v.w / 2; Z.cy = v.h / 2; Z.set = true; }
+    Z.zoom = Math.min(Math.max(Z.zoom, ZMIN), ZMAX);
+    var k = 1 / Z.zoom, vw = v.w * k, vh = v.h * k;
+    Z.cx = Math.min(Math.max(Z.cx, vw / 2), v.w - vw / 2);
+    Z.cy = Math.min(Math.max(Z.cy, vh / 2), v.h - vh / 2);
+    return { k: k, vw: vw, vh: vh, x: Z.cx - vw / 2, y: Z.cy - vh / 2, zoom: Z.zoom };
+  }
 
   function renderMap() {
     var v = VIEWS[S.view], vis = visible(), visIds = {};
     vis.forEach(function (p) { visIds[p.id] = 1; });
-    var svg = ['<svg viewBox="0 0 ' + v.w + ' ' + v.h + '" role="img" aria-label="Map of ' +
+    var F = frame(v), k = F.k;
+    var svg = ['<svg viewBox="' + F.x.toFixed(1) + ' ' + F.y.toFixed(1) + ' ' +
+      F.vw.toFixed(1) + ' ' + F.vh.toFixed(1) + '" class="' + (F.zoom > 1 ? "is-zoomed" : "") +
+      '" role="img" aria-label="Map of ' +
       (S.view === "accra" ? "Accra and the country around it" : "Ghana") + ' with the hostel marked">'];
 
     if (S.view === "ghana") {
@@ -1844,13 +1931,16 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     v.rings.forEach(function (km) {
       svg.push('<circle class="ring" cx="' + hp[0].toFixed(1) + '" cy="' + hp[1].toFixed(1) + '" r="' + kmToPx(v, km).toFixed(1) + '"/>');
       var rr = kmToPx(v, km) * 0.707;
-      svg.push('<text class="maplabel maplabel--sm" x="' + (hp[0] - rr).toFixed(1) + '" y="' + (hp[1] + rr).toFixed(1) + '" text-anchor="middle">' + km + ' km</text>');
+      svg.push('<text class="maplabel maplabel--sm" style="font-size:' + (11 * k).toFixed(2) + 'px" x="' +
+        (hp[0] - rr).toFixed(1) + '" y="' + (hp[1] + rr).toFixed(1) + '" text-anchor="middle">' + km + ' km</text>');
     });
 
     (S.view === "ghana" ? GH_LABELS : ACCRA_LABELS).forEach(function (l) {
       var q = proj(v, l.y, l.x);
-      var an = l.an || "start", dx = an === "end" ? -9 : an === "middle" ? 0 : 9;
-      svg.push('<text class="maplabel' + (l.sm ? " maplabel--sm" : "") + '" text-anchor="' + an + '" x="' + (q[0] + dx).toFixed(1) + '" y="' + (q[1] + 4).toFixed(1) + '">' + l.s + '</text>');
+      var an = l.an || "start", dx = (an === "end" ? -9 : an === "middle" ? 0 : 9) * k;
+      svg.push('<text class="maplabel' + (l.sm ? " maplabel--sm" : "") + '" style="font-size:' +
+        ((l.sm ? 11 : 13) * k).toFixed(2) + 'px" text-anchor="' + an + '" x="' + (q[0] + dx).toFixed(1) +
+        '" y="' + (q[1] + 4 * k).toFixed(1) + '">' + l.s + '</text>');
     });
 
     var shown = 0;
@@ -1859,30 +1949,180 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       if (q[0] < -20 || q[0] > v.w + 20 || q[1] < -20 || q[1] > v.h + 20) return;
       var on = !!visIds[p.id];
       if (on) shown++;
-      var r = 4 + p.star * 1.9;
+      var r = (4 + p.star * 1.9) * k;
       svg.push('<g class="pin' + (on ? "" : " is-off") + (S.sel === p.id ? " is-sel" : "") + '" data-id="' + p.id + '" tabindex="' + (on ? "0" : "-1") + '" role="button" aria-label="' + p.n.replace(/"/g, "") + '">' +
-        '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + r + '" fill="' + TAGC[p.t[0]] + '"/>' +
-        (S.sel === p.id ? '<text class="pin-label" x="' + (q[0] + r + 5).toFixed(1) + '" y="' + (q[1] + 4).toFixed(1) + '">' + p.n + '</text>' : "") +
+        '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + r.toFixed(2) + '" fill="' + TAGC[p.t[0]] + '"/>' +
+        (S.sel === p.id ? '<text class="pin-label" style="font-size:' + (13 * k).toFixed(2) + 'px" x="' +
+          (q[0] + r + 5 * k).toFixed(1) + '" y="' + (q[1] + 4 * k).toFixed(1) + '">' + p.n + '</text>' : "") +
         '</g>');
     });
 
-    svg.push('<g><path class="home-star" d="M0 -13L3.8 -4.2 13.2 -4.2 5.7 1.6 8.4 10.6 0 5.1 -8.4 10.6 -5.7 1.6 -13.2 -4.2 -3.8 -4.2Z" transform="translate(' + hp[0].toFixed(1) + ',' + hp[1].toFixed(1) + ')"/>' +
-      '<text class="pin-label" x="' + (hp[0] + 17).toFixed(1) + '" y="' + (hp[1] + 5).toFixed(1) + '">Your bed</text></g>');
+    svg.push('<g><path class="home-star" d="M0 -13L3.8 -4.2 13.2 -4.2 5.7 1.6 8.4 10.6 0 5.1 -8.4 10.6 -5.7 1.6 -13.2 -4.2 -3.8 -4.2Z" transform="translate(' +
+      hp[0].toFixed(1) + ',' + hp[1].toFixed(1) + ') scale(' + k.toFixed(3) + ')"/>' +
+      '<text class="pin-label" style="font-size:' + (13 * k).toFixed(2) + 'px" x="' + (hp[0] + 17 * k).toFixed(1) +
+      '" y="' + (hp[1] + 5 * k).toFixed(1) + '">Your bed</text></g>');
     svg.push("</svg>");
-    mapbox.innerHTML = svg.join("");
+    mapcanvas.innerHTML = svg.join("");
 
-    Array.prototype.forEach.call(mapbox.querySelectorAll(".pin"), function (g) {
-      g.addEventListener("click", function () { select(g.dataset.id, true); });
+    Array.prototype.forEach.call(mapcanvas.querySelectorAll(".pin"), function (g) {
+      g.addEventListener("click", function () {
+        if (suppressPinClick) return;      /* the tap was the end of a drag */
+        select(g.dataset.id, true);
+      });
       g.addEventListener("keydown", function (e) {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(g.dataset.id, true); }
       });
     });
+    bindGestures(mapcanvas.querySelector("svg"), v);
+    $("#zLevel").textContent = (Math.round(F.zoom * 10) / 10) + "\u00d7";
+    $("#zIn").disabled = F.zoom >= ZMAX - 0.001;
+    $("#zOut").disabled = F.zoom <= ZMIN + 0.001;
+    $("#zReset").disabled = F.zoom <= ZMIN + 0.001;
 
     $("#mapCount").innerHTML = "<b>" + shown + "</b> of " + PLACES.length + " showing";
     $("#mapCaption").textContent = S.view === "accra"
       ? "Accra itself, at a scale where the pins separate. Coastline and roads are simplified; every pin sits on real coordinates. Day trips beyond the city are on the Ghana map."
       : "All of Ghana. Dashed lines are the three roads out of Accra you will actually use: west to the castles, north to Kumasi and Mole, east to the Volta.";
   }
+
+  /* Pointer position in map coordinates. The svg keeps its viewBox aspect
+     ratio, so there is no letterboxing to correct for. */
+  function atPointer(svg, v, clientX, clientY) {
+    var r = svg.getBoundingClientRect(), F = frame(v);
+    return { x: F.x + (clientX - r.left) / r.width * F.vw,
+             y: F.y + (clientY - r.top) / r.height * F.vh };
+  }
+
+  /* Zoom towards a point, keeping whatever is under it in place. */
+  function zoomAt(v, next, fx, fy) {
+    var Z = S.z[S.view], F = frame(v);
+    next = Math.min(Math.max(next, ZMIN), ZMAX);
+    if (Math.abs(next - Z.zoom) < 0.001) return;
+    if (fx == null) { fx = Z.cx; fy = Z.cy; }
+    var px = (fx - F.x) / F.vw, py = (fy - F.y) / F.vh;
+    var nw = v.w / next, nh = v.h / next;
+    Z.zoom = next;
+    Z.cx = fx - nw * (px - 0.5);
+    Z.cy = fy - nh * (py - 0.5);
+    renderMap();
+  }
+
+  /* Panning only moves the window, so it just rewrites the viewBox — no
+     re-render, which keeps the drag smooth and stops the pins being replaced
+     out from under the pointer. Zooming changes how big things have to be
+     drawn, so that one goes through renderMap. */
+  function applyViewBox(svg, v) {
+    var F = frame(v);
+    svg.setAttribute("viewBox", F.x.toFixed(1) + " " + F.y.toFixed(1) + " " +
+      F.vw.toFixed(1) + " " + F.vh.toFixed(1));
+  }
+
+  function bindGestures(svg, v) {
+    if (!svg) return;
+    var Z = S.z[S.view];
+    var drag = null, pinch = null, lastTap = 0;
+
+    svg.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      var at = atPointer(svg, v, e.clientX, e.clientY);
+      zoomAt(v, Z.zoom * (e.deltaY < 0 ? 1.22 : 1 / 1.22), at.x, at.y);
+    }, { passive: false });
+
+    svg.addEventListener("dblclick", function (e) {
+      e.preventDefault();
+      var at = atPointer(svg, v, e.clientX, e.clientY);
+      zoomAt(v, Z.zoom * 1.8, at.x, at.y);
+    });
+
+    /* Window listeners live only for the duration of one drag, so they cannot
+       pile up each time the map is redrawn. */
+    function onMove(e) {
+      if (!drag) return;
+      var r = svg.getBoundingClientRect(), F = frame(v);
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      drag.moved = Math.max(drag.moved, Math.abs(dx) + Math.abs(dy));
+      if (drag.moved <= 4) return;
+      suppressPinClick = true;
+      Z.cx = drag.cx - dx / r.width * F.vw;
+      Z.cy = drag.cy - dy / r.height * F.vh;
+      applyViewBox(svg, v);
+    }
+    function onUp() {
+      drag = null;
+      svg.classList.remove("is-panning");
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      setTimeout(function () { suppressPinClick = false; }, 0);
+    }
+    svg.addEventListener("mousedown", function (e) {
+      if (e.button !== 0) return;
+      drag = { x: e.clientX, y: e.clientY, cx: Z.cx, cy: Z.cy, moved: 0 };
+      suppressPinClick = false;
+      svg.classList.add("is-panning");
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onUp);
+    });
+
+    function spread(t) {
+      var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+    svg.addEventListener("touchstart", function (e) {
+      if (e.touches.length === 2) {
+        pinch = { d: spread(e.touches), zoom: Z.zoom };
+        drag = null;
+        suppressPinClick = true;
+        e.preventDefault();
+      } else if (e.touches.length === 1) {
+        var now = Date.now();
+        if (now - lastTap < 300) {
+          var at = atPointer(svg, v, e.touches[0].clientX, e.touches[0].clientY);
+          zoomAt(v, Z.zoom * 1.8, at.x, at.y);
+          suppressPinClick = true;
+          e.preventDefault();
+        }
+        lastTap = now;
+        /* Only claim the drag once zoomed in, so at rest a thumb on the map
+           still scrolls the page. */
+        if (Z.zoom > 1) {
+          drag = { x: e.touches[0].clientX, y: e.touches[0].clientY, cx: Z.cx, cy: Z.cy, moved: 0 };
+        }
+      }
+    }, { passive: false });
+
+    svg.addEventListener("touchmove", function (e) {
+      if (pinch && e.touches.length === 2) {
+        e.preventDefault();
+        var d = spread(e.touches);
+        if (pinch.d > 0) {
+          var mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          var my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+          var at = atPointer(svg, v, mx, my);
+          zoomAt(v, pinch.zoom * (d / pinch.d), at.x, at.y);
+        }
+      } else if (drag && e.touches.length === 1) {
+        var r = svg.getBoundingClientRect(), F = frame(v);
+        var dx = e.touches[0].clientX - drag.x, dy = e.touches[0].clientY - drag.y;
+        drag.moved = Math.max(drag.moved, Math.abs(dx) + Math.abs(dy));
+        if (drag.moved > 6) {
+          e.preventDefault();
+          suppressPinClick = true;
+          Z.cx = drag.cx - dx / r.width * F.vw;
+          Z.cy = drag.cy - dy / r.height * F.vh;
+          applyViewBox(svg, v);
+        }
+      }
+    }, { passive: false });
+
+    svg.addEventListener("touchend", function (e) {
+      if (e.touches.length === 0) {
+        pinch = null; drag = null;
+        setTimeout(function () { suppressPinClick = false; }, 60);
+      }
+    });
+  }
+
+  function closeSpot() { if (S.sel) select(S.sel); }
 
   function select(id, fromMap) {
     S.sel = S.sel === id ? null : id;
@@ -1899,7 +2139,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         '<p class="where">' + p.a + " · " + p.kmTxt + " away · " + p.reach + '</p>' +
         '<h3>' + p.n + '</h3>' +
         '<p>' + p.why + '</p>' +
-        '<div class="board"><b>Getting there</b>' + p.how + '<span class="tip"><b>Chale —</b> ' + p.tip + '</span></div>' +
+        '<div class="board"><b>Getting there</b>' + p.how + '<span class="tip"><b>Chale,</b> ' + p.tip + '</span></div>' +
         '<ul class="meta" style="margin-top:.8rem">' +
           '<li>' + daysTxt(p.d) + '</li><li>' + costTxt(p) + '</li><li>' + p.when + '</li></ul>' +
         '<div class="place-actions">' +
@@ -1907,16 +2147,35 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
           '<a class="mini" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&query=' + p.lat + '%2C' + p.lon + '">Open in Maps</a>' +
           '<a class="mini" href="#p-' + p.id + '">Full entry</a></div>';
       box.querySelector(".js-trip2").addEventListener("click", function () { toggleTrip(p.id); });
+      var x = el("button", "spot-close", "\u00d7");
+      x.type = "button";
+      x.setAttribute("aria-label", "Close");
+      x.addEventListener("click", closeSpot);
+      box.appendChild(x);
     }
+    /* Tapping a pin fills the panel beside the map and nothing else. On a
+       phone that panel is a sheet over the map, because inline it would be
+       below the fold. Either way the list stays where the reader left it. */
+    var open = !!(p && fromMap);
+    $("#mapside").classList.toggle("is-open", open);
+    $("#scrim").hidden = !open;
     renderMap();
     Array.prototype.forEach.call(document.querySelectorAll(".place"), function (n) {
       n.classList.toggle("is-sel", n.id === "p-" + S.sel);
     });
-    if (fromMap && p) {
-      var node = document.getElementById("p-" + p.id);
-      if (node) node.scrollIntoView({ block: "center", behavior: "smooth" });
-    }
   }
+
+  $("#scrim").addEventListener("click", closeSpot);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeSpot();
+  });
+  $("#zIn").addEventListener("click", function () { zoomAt(VIEWS[S.view], S.z[S.view].zoom * 1.6); });
+  $("#zOut").addEventListener("click", function () { zoomAt(VIEWS[S.view], S.z[S.view].zoom / 1.6); });
+  $("#zReset").addEventListener("click", function () {
+    var Z = S.z[S.view], v = VIEWS[S.view];
+    Z.zoom = 1; Z.cx = v.w / 2; Z.cy = v.h / 2;
+    renderMap();
+  });
 
   Array.prototype.forEach.call(document.querySelectorAll(".mapTab"), function (b) {
     b.addEventListener("click", function () {
@@ -1971,17 +2230,13 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     var days = picked.reduce(function (s, p) { return s + p.d; }, 0);
     var fees = picked.reduce(function (s, p) { return s + p.cost; }, 0);
     var trans = picked.reduce(function (s, p) { return s + p.tr; }, 0);
-    var nights = Math.max(days, picked.length ? 1 : 0);
-    var perDay = S.budget === "shoestring" ? 260 : 700;
-    var living = Math.round(nights * perDay);
-    var total = fees + trans + living;
+    var total = fees + trans;
     var fx = parseFloat($("#fx").value) || 12;
 
     $("#tPlaces").textContent = picked.length;
     $("#tDays").textContent = (Math.ceil(days * 2) / 2) + (days === 1 ? " day" : " days");
     $("#tFees").textContent = "GH₵ " + fees.toLocaleString();
     $("#tTrans").textContent = "GH₵ " + trans.toLocaleString();
-    $("#tLiving").textContent = "GH₵ " + living.toLocaleString();
     $("#tTotal").textContent = "GH₵ " + total.toLocaleString();
     $("#tUsd").textContent = "$" + Math.round(total / fx).toLocaleString();
     $("#basketCount").textContent = picked.length;
@@ -2028,17 +2283,17 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     $("#clock").textContent = "Accra · " + days[dayN] + " " + hh + ":" + mm;
 
     var msg;
-    if (mon === 7 && date > 18) msg = "<b>Chale Wote weekend is close.</b> Jamestown fills with murals, sound systems and thirty thousand people — ask reception for the exact dates.";
+    if (mon === 7 && date > 18) msg = "<b>Chale Wote weekend is close.</b> Jamestown fills with murals, sound systems and thirty thousand people. Ask reception for the exact dates.";
     else if (mon === 11) msg = "<b>Detty December.</b> The diaspora is home, Accra is one long party, and everything worth booking is booking out. Book now, not tomorrow.";
     else if (mon === 2 && date < 8) msg = "<b>Independence Day, 6 March.</b> Full parade at Black Star Square. Get there before eight.";
-    else if (hour < 9) msg = "Early. This is the hour to leave for <b>Kakum, Mole or Shai Hills</b> — everything with animals in it is best before nine.";
+    else if (hour < 9) msg = "Early. This is the hour to leave for <b>Kakum, Mole or Shai Hills</b>. Anything with animals in it is best before nine.";
     else if (hour < 12) msg = "Good morning for <b>Makola, Kaneshie or the National Museum</b>. Get waakye on the way out of the gate.";
-    else if (dayN === 6 && hour >= 12 && hour < 15) msg = "<b>Saturday, just gone noon.</b> The Jamestown walking tour leaves the Community Theatre on High Street at 2pm — you can still make it.";
+    else if (dayN === 6 && hour >= 12 && hour < 15) msg = "<b>Saturday, just gone noon.</b> The Jamestown walking tour leaves the Community Theatre on High Street at 2pm. You can still make it.";
     else if (dayN === 0 && hour >= 12 && hour < 19) msg = "<b>Sunday afternoon.</b> Labadi Beach has the live band, the horses and half of Accra out in its good clothes.";
     else if (dayN === 2 && hour >= 17) msg = "<b>Tuesday.</b> Karaoke at Republic in Osu from about 8pm, and it is a great deal more fun than it sounds.";
-    else if (dayN === 5 && hour >= 15) msg = "<b>Friday.</b> Drumming at Big Milly's in Kokrobite tonight, or Bloom Bar in Osu if you'd rather stay in town. Wear something Ghanaian — everyone else will be.";
+    else if (dayN === 5 && hour >= 15) msg = "<b>Friday.</b> Drumming at Big Milly's in Kokrobite tonight, or Bloom Bar in Osu if you'd rather stay in town. Wear something Ghanaian; everyone else will be.";
     else if (hour >= 18) msg = "Dark. <b>Kelewele</b> is on the corners now, Osu is warming up, and Circle at night is eleven minutes' walk away.";
-    else if (hour >= 15) msg = "Afternoon heat. Good hours for a <b>gallery, the Du Bois Centre, or the Arts Centre</b> — all indoors, all close.";
+    else if (hour >= 15) msg = "Afternoon heat. Good hours for a <b>gallery, the Du Bois Centre or the Arts Centre</b>. All indoors, all close.";
     else msg = "Middle of the day. Sit it out with a cold drink; Accra does not reward walking about at one in the afternoon.";
     $("#nowMsg").innerHTML = msg;
   }
