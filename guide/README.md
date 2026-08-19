@@ -191,20 +191,34 @@ quietly break the offline promise without changing how the page looks.
 
 ### When a deploy fails
 
-Two failures account for nearly all of them, and neither says what it means.
-
 **`ENOENT: /opt/buildhome/repo/guide/wrangler.jsonc`** — Cloudflare checked out
-a commit that does not contain `guide/`. The path in the message is correct;
-the checkout is not.
+a tree that does not contain `guide/`. The path in the message is correct; the
+checkout is not. Look at which branch the failed build ran against, shown beside
+it under **Recent builds**.
 
-The trap is that **Retry deployment replays the original commit and the
-original settings**. It does not fetch the current `main`. So if the first
-build ran before `guide/` was merged, every retry reproduces the same error
-forever, unchanged, and no amount of fixing the settings helps.
+The cause, the first time this happened, was that the repository's default
+branch on GitHub was still `claude/site-architecture-redesign-kgq8yv` — a
+leftover working branch with no `guide/` in it. Cloudflare picks the default
+branch when you connect a repository, so every build checked out a tree where
+the guide had never existed, and merging to `main` could not help.
 
-Force a *new* build instead — push any commit to `main`, or use the deployment
-picker to build the current `main` rather than retrying the old one. Setting
-changes only take effect on a new build, for the same reason.
+Two settings to check, in this order:
+
+1. **Cloudflare → Settings → Build → Branch control → Production branch** must
+   be `main`.
+2. **GitHub → Settings → General → Default branch** should also be `main`, so
+   the next integration does not inherit the same problem.
+
+Then start a *new* build. **Retry deployment replays the original commit and
+the original settings**, so it reproduces the old failure unchanged and makes
+setting changes look like they did nothing.
+
+Also make sure these two agree — either row works, a mix of both does not:
+
+| Root directory | Deploy command |
+| --- | --- |
+| `/` | `npx wrangler deploy --config guide/wrangler.jsonc` |
+| `guide` | `npx wrangler deploy` |
 
 **A banner asking you to change `"name"` in `wrangler.jsonc`** — dismiss it.
 Cloudflare is reading the repository-root `wrangler.jsonc`, which belongs to
