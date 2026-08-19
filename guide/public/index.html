@@ -569,8 +569,8 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       <b aria-hidden="true">Somewhere Nice</b>
     </a>
     <nav aria-label="Sections">
-      <a href="#start">Start</a>
       <a href="#calendar">When</a>
+      <a href="#start">Interests</a>
       <a href="#map">Map</a>
       <a href="#places">Places</a>
       <a href="#routes">Routes</a>
@@ -617,15 +617,42 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
 
 <hr class="weave weave--thin">
 
-<section class="picker" id="start">
+<section id="calendar">
   <div class="wrap">
     <p class="eyebrow">Step one</p>
+    <h2 style="font-size:var(--t-3);max-width:20ch;margin-bottom:.8rem;">The year, month by month</h2>
+    <p class="lede" style="margin-bottom:1.8rem;">
+      Start here, because when you are here decides where you can usefully go. There is no
+      bad month, only different ones, and the rains rarely cancel a day: they arrive hard for
+      an hour and then they leave. The row highlighted below is the month you are in now.
+    </p>
+    <div class="cal-scroll">
+      <table class="cal">
+        <thead>
+          <tr><th scope="col">Month</th><th scope="col">Weather</th><th scope="col">Verdict</th><th scope="col">What's happening</th></tr>
+        </thead>
+        <tbody id="calBody"></tbody>
+      </table>
+    </div>
+    <p class="map-caption">
+      Festival dates on the traditional calendar move each year, Homowo and Damba and the Akwasidae
+      cycle especially. Ask at reception and we will find out the actual date for you.
+    </p>
+  </div>
+</section>
+
+<hr class="weave weave--thin">
+
+<section class="picker" id="start">
+  <div class="wrap">
+    <p class="eyebrow">Step two</p>
     <h2 style="font-size:var(--t-3);max-width:18ch;margin-bottom:1.2rem;">What are you actually into?</h2>
     <div class="pick-grid">
       <div>
         <p class="lede" style="font-size:var(--t-0);margin-bottom:1.2rem;">
-          Pick as many as you like. Nothing selected means everything is shown. Every place
-          below is scored against your picks, then against how far it is from this building.
+          Now the part that changes what you see. Pick as many as you like, or none, which
+          shows everything. Every place below is scored against what you choose, and then
+          against how far it is from this building.
         </p>
         <ul class="chips" id="chips" role="group" aria-label="Interests"></ul>
       </div>
@@ -652,30 +679,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
   </div>
 </section>
 
-<hr class="weave weave--thin">
 
-<section id="calendar">
-  <div class="wrap">
-    <p class="eyebrow">Step two</p>
-    <h2 style="font-size:var(--t-3);max-width:20ch;margin-bottom:.8rem;">The year, month by month</h2>
-    <p class="lede" style="margin-bottom:1.8rem;">
-      There is no bad month, only different ones. The rains rarely cancel a day. They arrive
-      hard for an hour and then they leave. Highlighted below is where we are now.
-    </p>
-    <div class="cal-scroll">
-      <table class="cal">
-        <thead>
-          <tr><th scope="col">Month</th><th scope="col">Weather</th><th scope="col">Verdict</th><th scope="col">What's happening</th></tr>
-        </thead>
-        <tbody id="calBody"></tbody>
-      </table>
-    </div>
-    <p class="map-caption">
-      Festival dates on the traditional calendar move each year, Homowo and Damba and the Akwasidae
-      cycle especially. Ask at reception and we will find out the actual date for you.
-    </p>
-  </div>
-</section>
 
 <hr class="weave weave--thin">
 
