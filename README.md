@@ -130,9 +130,9 @@ npx wrangler deploy
 `guide/` is not part of niceoperation.com. It is the guest field guide for the
 hostel — Accra and the rest of Ghana, sorted by what a backpacker says they are
 interested in and by how far each place is from bed 1 at 9 Cotton Avenue. It is
-one self-contained HTML file with its own Cloudflare project
-(`hostelaccra-guide`, deployed to `guide.hostelaccra.com`) so that the two sites
-cannot take each other down. See `guide/README.md`.
+one self-contained HTML file published as its own Cloudflare Worker
+(`exploregh`, at `exploregh.niceoperation.com`) so that the two sites cannot take
+each other down. It shares this zone and nothing else. See `guide/README.md`.
 
 Both sites share the same standard: one request, no third-party anything, works
 on a bad connection.

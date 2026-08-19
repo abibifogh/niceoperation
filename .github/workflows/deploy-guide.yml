@@ -10,7 +10,7 @@
 #                          Permissions: Account → Workers Scripts → Edit,
 #                                       Zone   → DNS            → Edit,
 #                                       Zone   → Workers Routes → Edit
-#                          Scope it to this account and to the hostelaccra.com
+#                          Scope it to this account and to the niceoperation.com
 #                          zone only. Do not use a Global API Key.
 #   CLOUDFLARE_ACCOUNT_ID  Shown in the right-hand column of the Cloudflare
 #                          dashboard overview page.

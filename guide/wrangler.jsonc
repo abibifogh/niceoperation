@@ -2,14 +2,15 @@
   // How the guest field guide gets published.
   //
   // This is a second, separate Cloudflare project from the one that publishes
-  // niceoperation.com. They share a repository and nothing else: this one is
-  // guest-facing and belongs to the hostel, that one is the software suite.
-  // Keeping them apart means a bad deploy of one cannot take the other down.
+  // niceoperation.com. They share a repository and a zone and nothing else:
+  // this one is guest-facing and belongs to the hostel, that one is the
+  // software suite. Keeping them as separate Workers means a bad deploy of one
+  // cannot take the other down.
   //
-  // Project name: hostelaccra-guide
+  // Project name: exploregh
   // Build command: (leave empty)
   // Deploy command: npx wrangler deploy --config guide/wrangler.jsonc
-  "name": "hostelaccra-guide",
+  "name": "exploregh",
   "compatibility_date": "2025-01-01",
 
   // Assets only. There is no server, no build and no framework — the guide is
@@ -23,18 +24,18 @@
   // certificate itself, and that the address lives in version control next to
   // the thing it points at.
   //
-  // This requires hostelaccra.com to be a zone in the same Cloudflare account.
-  // If the domain's nameservers are still with the registrar or another host,
-  // move them to Cloudflare first — until then, delete this "routes" block and
-  // deploy; the guide will be live on the workers.dev address below and the
-  // subdomain can be attached later without republishing.
+  // niceoperation.com is already a zone in this Cloudflare account — it is
+  // what niceops-site serves — so this hostname is free to claim. The two
+  // Workers do not collide: niceops-site holds the custom domains
+  // niceoperation.com and www.niceoperation.com, which are specific hostnames
+  // rather than a wildcard, and this one holds exploregh.niceoperation.com.
   "routes": [
-    { "pattern": "guide.hostelaccra.com", "custom_domain": true }
+    { "pattern": "exploregh.niceoperation.com", "custom_domain": true }
   ],
 
-  // Keeps hostelaccra-guide.<your-subdomain>.workers.dev working as well, which
-  // is worth having: it is the address to test against before the DNS record
-  // has finished propagating, and the fallback if the custom domain is ever
+  // Keeps exploregh.<your-subdomain>.workers.dev working as well, which is
+  // worth having: it is the address to test against before the DNS record has
+  // finished propagating, and the fallback if the custom domain is ever
   // misconfigured.
   "workers_dev": true
 }

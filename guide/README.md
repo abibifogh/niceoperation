@@ -103,34 +103,38 @@ in the `how` and `why` text.
 
 ## Publishing
 
-The guide goes out as its own Cloudflare project, separate from the one that
+The guide goes out as its own Cloudflare Worker, separate from the one that
 publishes niceoperation.com, so a bad deploy of one cannot take the other down.
+They share the zone and nothing else.
 
-The subdomain is declared in `wrangler.jsonc` rather than clicked into the
+The address is declared in `wrangler.jsonc` rather than clicked into the
 dashboard:
 
 ```jsonc
 "routes": [
-  { "pattern": "guide.hostelaccra.com", "custom_domain": true }
+  { "pattern": "exploregh.niceoperation.com", "custom_domain": true }
 ]
 ```
 
 That means `wrangler deploy` creates the DNS record and orders the certificate
 itself, and the address lives in version control next to the thing it points
-at. To change the subdomain, change that one line — and nothing else.
+at. To move it, change that one line — and nothing else.
 
-### Before the first deploy
+### Why this hostname works without any setup
 
-**`hostelaccra.com` has to be a zone in the same Cloudflare account.** Workers
-custom domains need Cloudflare to be running the DNS; a CNAME added at another
-registrar will not work. Check at
-[dash.cloudflare.com](https://dash.cloudflare.com) — if the domain is not
-listed, add it and move the nameservers at the registrar first.
+A Workers custom domain needs Cloudflare to be running the zone's DNS; a CNAME
+added at another registrar will not do. `niceoperation.com` already qualifies —
+it is the zone `niceops-site` serves, with `niceoperation.com` and
+`www.niceoperation.com` attached to it as custom domains.
 
-If you would rather not move the nameservers yet, delete the `routes` block and
-deploy anyway. The guide comes up on
-`hostelaccra-guide.<your-subdomain>.workers.dev` and the custom domain can be
-attached later without republishing.
+The two Workers do not collide. Those are specific hostnames rather than a
+wildcard route, so `exploregh.niceoperation.com` is free to claim.
+
+One thing that comes with sharing a zone: this subdomain inherits
+niceoperation.com's zone-level settings — SSL/TLS mode, WAF rules, and any
+redirect or page rules. If a rule ever gets added that rewrites everything on
+the zone to the apex or to `www`, it will catch this subdomain too. Worth
+knowing when something mysterious happens later.
 
 ### Option A — one command, from a working copy
 
@@ -141,9 +145,9 @@ npx wrangler deploy --config guide/wrangler.jsonc
 
 `wrangler login` opens a browser, so this has to be run somewhere with one.
 That is the whole deploy: it uploads three files, creates
-`guide.hostelaccra.com`, and issues the certificate. Give DNS a couple of
-minutes, then check the workers.dev address first if the subdomain is not
-resolving yet.
+`exploregh.niceoperation.com`, and issues the certificate. Give DNS a couple of
+minutes; if the subdomain is not resolving yet, check the workers.dev address
+first to confirm the upload itself worked.
 
 To see exactly what would be sent without sending it:
 
@@ -155,15 +159,15 @@ npx wrangler deploy --config guide/wrangler.jsonc --dry-run
 
 Workers & Pages → Create → connect this repository, then:
 
-- Project name: `hostelaccra-guide`
+- Project name: `exploregh`
 - Production branch: `main`, root directory `/`
 - Build command: *(leave empty)*
 - Deploy command: `npx wrangler deploy --config guide/wrangler.jsonc`
 
 Cloudflare handles the credentials itself, so there are no secrets to manage.
-The two warnings in the root `README.md` apply here too: the build command
-must be empty, and the GitHub App has to have this repository in its access
-list.
+The two warnings in the root `README.md` apply here too: the build command must
+be empty, and the Cloudflare GitHub App has to have this repository in its
+access list.
 
 ### Option C — push to deploy, from this repository's CI
 
@@ -173,7 +177,7 @@ Settings → Secrets and variables → Actions:
 
 | Secret | Where it comes from |
 | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | [API tokens](https://dash.cloudflare.com/profile/api-tokens) → Create token. Permissions: **Account → Workers Scripts → Edit**, **Zone → DNS → Edit**, **Zone → Workers Routes → Edit**. Scope it to this account and the `hostelaccra.com` zone only. |
+| `CLOUDFLARE_API_TOKEN` | [API tokens](https://dash.cloudflare.com/profile/api-tokens) → Create token. Permissions: **Account → Workers Scripts → Edit**, **Zone → DNS → Edit**, **Zone → Workers Routes → Edit**. Scope it to this account and the `niceoperation.com` zone only. |
 | `CLOUDFLARE_ACCOUNT_ID` | Right-hand column of the Cloudflare dashboard overview. |
 
 Use a scoped token, never the Global API Key, and paste it straight into the
@@ -183,11 +187,11 @@ meantime.
 
 The workflow also refuses to publish a guide that has been truncated or that
 has picked up a third-party request, which is the one regression that would
-quietly break the offline promise.
+quietly break the offline promise without changing how the page looks.
 
 ### It does not need any of this
 
-It is a single self-contained file. It can equally be dropped into the existing
+It is a single self-contained file. It can equally be dropped into
 hostelaccra.com as a page, put in a subfolder, or emailed to a guest as an
 attachment that still works with the plane's wi-fi off.
 
