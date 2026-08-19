@@ -189,6 +189,34 @@ The workflow also refuses to publish a guide that has been truncated or that
 has picked up a third-party request, which is the one regression that would
 quietly break the offline promise without changing how the page looks.
 
+### When a deploy fails
+
+Two failures account for nearly all of them, and neither says what it means.
+
+**`ENOENT: /opt/buildhome/repo/guide/wrangler.jsonc`** — Cloudflare checked out
+a commit that does not contain `guide/`. The path in the message is correct;
+the checkout is not.
+
+The trap is that **Retry deployment replays the original commit and the
+original settings**. It does not fetch the current `main`. So if the first
+build ran before `guide/` was merged, every retry reproduces the same error
+forever, unchanged, and no amount of fixing the settings helps.
+
+Force a *new* build instead — push any commit to `main`, or use the deployment
+picker to build the current `main` rather than retrying the old one. Setting
+changes only take effect on a new build, for the same reason.
+
+**A banner asking you to change `"name"` in `wrangler.jsonc`** — dismiss it.
+Cloudflare is reading the repository-root `wrangler.jsonc`, which belongs to
+`niceops-site`, and offering to rename it to match whichever project you happen
+to be looking at. Accepting that, or merging the pull request it offers to open,
+renames the Worker holding niceoperation.com's custom domains and takes the site
+down. The root `README.md` explains why that name has to stay put.
+
+The guide's own config is `guide/wrangler.jsonc`, and it is already named
+correctly. The two files are unrelated and neither should be edited to satisfy
+a prompt about the other.
+
 ### It does not need any of this
 
 It is a single self-contained file. It can equally be dropped into
