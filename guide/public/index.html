@@ -510,6 +510,36 @@ section { padding-block: var(--bay); }
   padding: .05em .35em; border: 1px solid var(--line-2);
 }
 
+/* --- Nearby: the things you need rather than the things you want ------ */
+.near { display: grid; gap: .8rem; grid-template-columns: 1fr; }
+@media (min-width: 700px) { .near { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1080px) { .near { grid-template-columns: repeat(3, 1fr); } }
+.nearcard {
+  background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--c, var(--line));
+  padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .45rem;
+}
+.nearcard .kind {
+  font-family: var(--mono); font-size: var(--t--2); text-transform: uppercase;
+  letter-spacing: .12em; color: var(--c);
+}
+.nearcard h4 { font-size: var(--t-1); }
+.nearcard .addr { font-size: var(--t--1); color: var(--ink-2); }
+.nearcard .note { font-size: var(--t--1); color: var(--ink-2); }
+.nearcard .place-actions { margin-top: auto; }
+.near-head {
+  display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap;
+  margin: 2rem 0 .9rem; border-bottom: 1px solid var(--line); padding-bottom: .45rem;
+}
+.near-head:first-of-type { margin-top: 0; }
+.near-head h3 { font-size: var(--t-2); }
+.near-head span { font-family: var(--mono); font-size: var(--t--2); color: var(--ink-3); text-transform: uppercase; letter-spacing: .1em; }
+.urgent {
+  background: var(--red-fill); color: #FFF6EC; padding: 1rem 1.2rem; margin-bottom: 1.8rem;
+  border-left: 5px solid var(--ink); display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: baseline;
+}
+.urgent b { font-family: var(--mono); font-size: var(--t-2); font-weight: 600; letter-spacing: .04em; }
+.urgent span { font-size: var(--t--1); }
+
 .phrases { display: grid; gap: .5rem; grid-template-columns: 1fr; }
 @media (min-width: 620px) { .phrases { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1000px) { .phrases { grid-template-columns: repeat(3, 1fr); } }
@@ -575,6 +605,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       <a href="#places">Places</a>
       <a href="#routes">Routes</a>
       <a href="#trip">My trip</a>
+      <a href="#nearby">Nearby</a>
       <a href="#kit">Ground rules</a>
     </nav>
     <button class="iconbtn" id="themeBtn" type="button" aria-pressed="false" title="Switch between light and dark">Dark</button>
@@ -793,6 +824,31 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<hr class="weave weave--thin">
+
+<section id="nearby">
+  <div class="wrap">
+    <p class="eyebrow">Around the corner</p>
+    <h2 style="font-size:var(--t-3);max-width:16ch;margin-bottom:.8rem;">Cash, chemists and hospitals</h2>
+    <p class="lede" style="margin-bottom:1.6rem;">
+      The things you need rather than the things you want, nearest first. Distances are from
+      our gate. Come and ask at reception before you go anywhere on this list: we will tell you
+      which one is open, what it should cost, and put you in a car if you are in no state to
+      find it yourself.
+    </p>
+    <div class="urgent">
+      <b>112</b><span>All emergencies, from any phone, free. Police <b style="font-size:1em">191</b>, ambulance <b style="font-size:1em">193</b>, fire <b style="font-size:1em">192</b>. Tell reception as well: we can usually get to you faster than a service can.</span>
+    </div>
+    <div id="nearbyOut"></div>
+    <p class="map-caption" style="margin-top:1.4rem;">
+      Positions are close enough for a taxi driver and for the walking times above, not
+      surveyed. The map links search by name, so they land on the right door even where our
+      pin is a few streets out. Opening hours change; the hospitals listed as 24 hours are the
+      ones that genuinely are.
+    </p>
   </div>
 </section>
 
@@ -1203,6 +1259,12 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       how:"Tro-tro from Kaneshie station (GH₵ 12–18, about an hour), then a shared taxi down to the beach. Bolt runs it for GH₵ 90–130.",
       tip:"Stay the night rather than day-tripping. The evening is the whole point. Do not walk the beach alone after dark, and do not leave a bag on the sand while you swim." },
 
+    { id:"coffins", n:"The fantasy coffin workshops", a:"Teshie", r:"accra", lat:5.5830, lon:-0.1040, t:["craft","art"], d:0.3, cost:50, tr:80, star:3,
+      when:"Weekday working hours, when the saws are running",
+      why:"The Ga bury their dead in a coffin shaped like the life they led: a fish for a fisherman, a cocoa pod for a farmer, a Nokia, a lion, a beer bottle, an aeroplane. It started at the Kane Kwei Carpentry Workshop in Teshie in the 1950s, when a carpenter's cocoa-pod palanquin became its owner's coffin instead, and the idea has since travelled to museums in Paris and New York. The workshops themselves are still sheds on the main road, still building for real funerals.",
+      how:"Tro-tro from Circle towards Teshie or Nungua, GH₵ 8–12, then ask anyone for the coffin makers. Everybody knows them. A Bolt is GH₵ 70–100.",
+      tip:"These are workshops, not a gallery. Weekdays, ask before photographing, and expect to pay a small amount for a proper look round and a conversation with whoever is carving. Miniatures are made for visitors and fit in a rucksack." },
+
     { id:"osucastle", n:"Osu Castle (Christiansborg)", a:"Osu", r:"accra", lat:5.5460, lon:-0.1830, t:["roots"], d:0.2, cost:100, tr:50, star:1,
       when:"Weekdays, booking ahead",
       why:"A Danish slave fort that became the seat of government for three centuries and is now a museum. Less visited and less polished than Cape Coast, and better for it.",
@@ -1500,6 +1562,20 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
 
   /* --- Six routes that guests keep coming back and recommending. -------- */
   var ROUTES = [
+    { id:"r0", n:"One day in Accra", days:"24 hours", cost:"≈ GH₵ 400", t:["city","roots","food","music"],
+      blurb:"You land tomorrow and leave the day after, or you have one day before the bus north. This is the version that gets you the city rather than a list of buildings. It is a long day and it is worth it.",
+      legs:[
+        { d:"6.30am", n:"Waakye at the end of the street", p:"Out of the gate and towards Circle. Eat where the queue is. This is breakfast the way the city eats it, and it costs less than a coffee at home.", hop:"Walk, 10 min" },
+        { d:"7.30am", n:"Jamestown, before the heat", p:"Fishing beach at full tilt, hundreds of painted canoes landing the day's catch, and the lighthouse for the whole city at once. Go with a Bukom guide rather than alone with a camera.", hop:"Bolt · GH₵ 35–50" },
+        { d:"10am", n:"Kwame Nkrumah Memorial Park", p:"Where independence was declared, and where he is buried. Twenty minutes' walk from Jamestown along High Street. Understand this and the rest of the day reads differently.", hop:"Walk, 20 min · GH₵ 100 entry" },
+        { d:"11.30am", n:"Makola", p:"Straight into the market. Buy a half-piece of wax print, get the price down, and take nothing valuable in with you.", hop:"Walk, 10 min" },
+        { d:"1pm", n:"Banku and tilapia", p:"Sit down somewhere with plastic chairs and a grill going. Whole fish, fermented corn dough, pepper sauce that means it.", hop:"Wherever is busy" },
+        { d:"2.30pm", n:"Sit out the heat", p:"The National Museum if you want to keep going, the hostel if you are honest with yourself. One in the afternoon in Accra is not for walking about.", hop:"Bolt · GH₵ 25" },
+        { d:"5pm", n:"Black Star Square at golden hour", p:"The arch, the parade ground and the Atlantic hitting the sea wall. The best photograph in the city, half an hour before sunset.", hop:"Bolt · GH₵ 30" },
+        { d:"6.30pm", n:"Osu, on foot", p:"Kelewele off a corner cart, khebab smoke, and the whole street out. Eat standing up before you sit down anywhere.", hop:"Walk from the square, 20 min" },
+        { d:"8.30pm", n:"Republic Bar", p:"Highlife spilling onto the street, one Kokroko, and a conversation with somebody who lives here. Bolt home whenever it ends.", hop:"Bolt back · GH₵ 25–40" }
+      ] },
+
     { id:"r1", n:"Forty-eight hours in Accra", days:"2 days", cost:"≈ GH₵ 900", t:["city","roots","music","food"],
       blurb:"You have a connecting flight or a short window. This is the version of Accra that makes people come back.",
       legs:[
@@ -1559,6 +1635,77 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         { d:"Day 13–14", n:"Upper East", p:"Bolgatanga, Paga crocodiles, Sirigu painted houses, Tongo Hills. Then fly or ride back south.", hop:"Bus + shared taxi" },
         { d:"Day 15–16", n:"Volta, then home", p:"Cut east to Hohoe for Wli Falls and Afadjato, then the road back down to Circle and a last night in Osu.", hop:"Tro-tro Hohoe → Accra · 5 hrs" }
       ] }
+  ];
+
+  /* Nearby: the things a guest needs rather than the things they want.
+     `q` is what the map link searches for, so it lands on the right door even
+     where the coordinate is a few streets out. */
+  var NEARBY = [
+    { g:"money", k:"Cash", c:"var(--gold-fill)", n:"Forex bureaux, Ring Road Central",
+      a:"Ring Road Central, at the top of our street", lat:5.5690, lon:-0.2090,
+      q:"forex bureau Ring Road Central Kokomlemle Accra", hrs:"Mon–Sat, roughly 8am to 5pm",
+      note:"The nearest cluster of licensed bureaux. Rates are chalked on the door, it is cash only, and a single clean $100 note gets a better rate than five twenties. Take your passport, count the money before you leave the counter, and keep the receipt." },
+
+    { g:"money", k:"Cash", c:"var(--gold-fill)", n:"Forex bureaux, Farrar Avenue",
+      a:"Adabraka", lat:5.5620, lon:-0.2058,
+      q:"forex bureau Farrar Avenue Adabraka Accra", hrs:"Mon–Sat office hours",
+      note:"A second run of bureaux fifteen minutes away, worth walking to if the Ring Road rate looks mean. Compare two before you change anything larger than a couple of hundred dollars." },
+
+    { g:"money", k:"ATMs", c:"var(--gold-fill)", n:"Bank branches at Kwame Nkrumah Circle",
+      a:"Circle interchange", lat:5.5709, lon:-0.2074,
+      q:"Ecobank Kwame Nkrumah Circle Accra", hrs:"Machines 24h, counters Mon–Fri 8.30am to 4pm",
+      note:"Ecobank, GCB, Absa and Stanbic all sit around the interchange and all take foreign cards. Use a machine inside a branch, in daylight, and take the cash straight into your money belt rather than counting it on the pavement." },
+
+    { g:"money", k:"Cash", c:"var(--gold-fill)", n:"Bureaux on Oxford Street",
+      a:"Osu", lat:5.5566, lon:-0.1820,
+      q:"forex bureau Oxford Street Osu Accra", hrs:"Late, and many open Sundays",
+      note:"Only worth the trip if you need money outside office hours or at a weekend. Never change money with somebody who approaches you on the street: unlicensed dealing is illegal here, and the arithmetic will not be in your favour." },
+
+    { g:"care", k:"Walk-in doctor", c:"var(--green-fill)", n:"Franklyn Medical Centre",
+      a:"Adabla Plaza, 3 Oroko Street, Kokomlemle", lat:5.5698, lon:-0.2136,
+      q:"Franklyn Medical Centre Oroko Street Kokomlemle Accra", hrs:"Mon–Fri 8am to 4pm, weekends and holidays 8am to 1pm",
+      note:"The closest doctor to your bed, a few streets away. The right call for a fever, a stomach that will not settle, a malaria test, or something that needs cleaning and dressing. Anything worse than that, go to Ridge." },
+
+    { g:"care", k:"Hospital · 24h", c:"var(--red-fill)", n:"Greater Accra Regional Hospital",
+      a:"Castle Road, Ridge. Everyone calls it Ridge Hospital", lat:5.5595, lon:-0.2013,
+      q:"Greater Accra Regional Hospital Ridge Accra", hrs:"Accident and emergency, 24 hours",
+      note:"The nearest large hospital, and one every driver in the city can find. Public, so unless you arrive urgent you will wait. Say Ridge Hospital, not the new name, or you will get a blank look." },
+
+    { g:"care", k:"Hospital · 24h", c:"var(--red-fill)", n:"37 Military Hospital",
+      a:"Liberation Road, at the 37 junction", lat:5.5860, lon:-0.1880,
+      q:"37 Military Hospital Accra", hrs:"Emergency department and pharmacy, 24 hours",
+      note:"Open to civilians, and the most dependable emergency department in this half of Accra. Its pharmacy is open all night too, which makes this the answer at three in the morning when nothing else is." },
+
+    { g:"care", k:"Private", c:"var(--plum-fill)", n:"Nyaho Medical Centre",
+      a:"Airport Residential", lat:5.6005, lon:-0.1815,
+      q:"Nyaho Medical Centre Accra", hrs:"Clinics daily, emergency cover 24 hours",
+      note:"Fast, private and used to foreign patients and foreign insurers. Expensive by Ghanaian standards and cheap by yours. Bring a card and your policy number; most insurers will settle with them directly." },
+
+    { g:"care", k:"Referral", c:"var(--red-fill)", n:"Korle Bu Teaching Hospital",
+      a:"Korle Bu", lat:5.5365, lon:-0.2290,
+      q:"Korle Bu Teaching Hospital Accra", hrs:"24 hours",
+      note:"The national referral hospital. You do not choose to come here; you are sent, for something a smaller hospital cannot handle. Worth knowing the name so you recognise it if it is said to you." },
+
+    { g:"care", k:"Sexual health", c:"var(--plum-fill)", n:"Marie Stopes, Kokomlemle",
+      a:"Mensah Sarbah Road", lat:5.5685, lon:-0.2150,
+      q:"Marie Stopes Kokomlemle Accra", hrs:"Weekday office hours",
+      note:"Contraception, testing and reproductive health, ten minutes away, discreet and used to visitors. Condoms are also sold in every pharmacy and most corner shops without anyone raising an eyebrow." },
+
+    { g:"chemist", k:"Chemist", c:"var(--teal-fill)", n:"Pharmacies on Ring Road Central",
+      a:"Between our street and Circle", lat:5.5695, lon:-0.2085,
+      q:"pharmacy Ring Road Central Kokomlemle Accra", hrs:"Most open 8am to 8pm or later",
+      note:"Several within a ten-minute walk. Ghanaian pharmacists are well trained and will sell you most things without a prescription, including antimalarials and rehydration salts. Describe the symptom rather than naming a brand from home; the brand here will be different and probably cheaper." },
+
+    { g:"chemist", k:"Chemist · 24h", c:"var(--teal-fill)", n:"The all-night counter at 37",
+      a:"37 Military Hospital, Liberation Road", lat:5.5860, lon:-0.1880,
+      q:"37 Military Hospital pharmacy Accra", hrs:"24 hours",
+      note:"When everything local has shut and somebody needs something tonight, this is where the taxi goes. Take cash." }
+  ];
+
+  var NEARBY_GROUPS = [
+    { k:"money",   n:"Changing money",       s:"Licensed bureaux and bank machines, nearest first" },
+    { k:"care",    n:"Doctors and hospitals", s:"From a walk-in clinic to the national referral hospital" },
+    { k:"chemist", n:"Chemists",              s:"Including the one that never closes" }
   ];
 
   var MONTHS = [
@@ -1664,6 +1811,12 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     p.reach = p.km < 1.2 ? "walk it" : p.km < 12 ? "short hop" : p.km < 60 ? "day trip" : p.km < 220 ? "half a day on the road" : "an expedition";
   });
 
+  NEARBY.forEach(function (x) {
+    x.km = haversine(HOME, x);
+    x.kmTxt = x.km < 1 ? Math.round(x.km * 1000 / 50) * 50 + " m" : (Math.round(x.km * 10) / 10) + " km";
+    x.walk = Math.round(x.km / 4.5 * 60);
+  });
+
   function daysTxt(d) {
     if (d <= 0.2) return "under 2 hrs";
     if (d <= 0.35) return "half a morning";
@@ -1730,6 +1883,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     });
   }
   seg($("#daysSeg"), [
+    { n:"24 hours", v:1 },
     { n:"A weekend", v:2 }, { n:"About 5 days", v:5 }, { n:"A week", v:7 },
     { n:"Two weeks", v:14 }, { n:"A month +", v:30 }
   ], "days");
@@ -1770,6 +1924,10 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     return PLACES.filter(function (p) {
       if (S.tags.length && !p.t.some(function (k) { return S.tags.indexOf(k) > -1; })) return false;
       if (p.d > S.days) return false;
+      /* One day means one day out of Accra and back. Cape Coast is a half-day
+         site at the end of a four-hour road, so it does not belong here even
+         though the visit itself is short. */
+      if (S.days <= 1 && p.km > 95) return false;
       return true;
     });
   }
@@ -2190,6 +2348,31 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     });
   });
 
+  /* --- Nearby ----------------------------------------------------------- */
+  var nearbyOut = $("#nearbyOut");
+  NEARBY_GROUPS.forEach(function (g) {
+    var items = NEARBY.filter(function (x) { return x.g === g.k; })
+                      .sort(function (a, b) { return a.km - b.km; });
+    if (!items.length) return;
+    nearbyOut.appendChild(el("div", "near-head", '<h3>' + g.n + '</h3><span>' + g.s + '</span>'));
+    var grid = el("div", "near");
+    items.forEach(function (x) {
+      var reach = x.walk <= 25 ? x.walk + " min walk" : "take a car";
+      var a = el("article", "nearcard");
+      a.style.setProperty("--c", x.c);
+      a.innerHTML =
+        '<p class="kind">' + x.k + '</p>' +
+        '<h4>' + x.n + '</h4>' +
+        '<p class="addr">' + x.a + '</p>' +
+        '<ul class="meta"><li>' + x.kmTxt + ' away</li><li>' + reach + '</li><li>' + x.hrs + '</li></ul>' +
+        '<p class="note">' + x.note + '</p>' +
+        '<div class="place-actions"><a class="mini" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&query=' +
+          encodeURIComponent(x.q) + '">Open in Maps</a></div>';
+      grid.appendChild(a);
+    });
+    nearbyOut.appendChild(grid);
+  });
+
   /* --- Routes ----------------------------------------------------------- */
   var routesOut = $("#routesOut");
   ROUTES.forEach(function (r) {
@@ -2324,9 +2507,10 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
   /* --- Go --------------------------------------------------------------- */
   function render() {
     var v = visible();
+    var span = S.days === 1 ? "a single day" : S.days + " days";
     $("#pickReadout").innerHTML = S.tags.length
-      ? "<b>" + v.length + "</b> places match, filtered to what fits " + S.days + " days"
-      : "<b>" + v.length + "</b> places fit " + S.days + " days. Pick an interest to rank them.";
+      ? "<b>" + v.length + "</b> places match, filtered to what fits " + span
+      : "<b>" + v.length + "</b> places fit " + span + ". Pick an interest to rank them.";
     renderList(); renderMap(); renderTrip();
   }
   var countEl = document.getElementById("countPlaces");
