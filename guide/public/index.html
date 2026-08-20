@@ -414,6 +414,17 @@ section { padding-block: var(--bay); }
   border: 1px solid var(--line-2); padding: .2rem .45rem; color: var(--ink-2);
   font-variant-numeric: tabular-nums;
 }
+/* Venues whose programme changes with the day carry a week strip, and
+   tonight is the one lit up. */
+.week { display: flex; flex-wrap: wrap; gap: .3rem; list-style: none; margin: .1rem 0 0; padding: 0; }
+.week li {
+  font-family: var(--mono); font-size: var(--t--2); background: var(--card-2);
+  border: 1px solid var(--line-2); padding: .2rem .45rem; color: var(--ink-2);
+}
+.week li b { color: var(--ink); font-weight: 600; letter-spacing: .04em; }
+.week li.is-today { background: var(--gold-fill); border-color: var(--gold-fill); color: #241A06; }
+.week li.is-today b { color: #241A06; }
+
 .place-actions { display: flex; gap: .4rem; margin-top: auto; padding-top: .5rem; flex-wrap: wrap; }
 .mini {
   font: inherit; font-family: var(--mono); font-size: var(--t--2); text-transform: uppercase;
@@ -1176,27 +1187,38 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       tip:"Eat on the street, drink in the bars. Kelewele appears on the corners after dark and costs almost nothing. Start there." },
 
     { id:"republic", n:"Republic Bar & Grill", a:"Osu", r:"accra", lat:5.5563, lon:-0.1836, t:["music","food"], d:0.25, cost:150, tr:60, star:3,
-      when:"Thursday to Saturday nights; karaoke Tuesdays 8pm",
+      dTxt:"an evening", when:"Thursday to Saturday nights; karaoke Tuesdays 8pm",
       why:"The bar everyone ends up in: locals, expats, travellers, musicians. Live highlife and Afrobeat spilling onto the street, and a cocktail called Kokroko made with akpeteshie, the local firewater. If you go out once in Accra, go here.",
       how:"Tro-tro or Bolt to Osu, then walk. Ask for Republic. Every driver knows it.",
-      tip:"Drink the Kokroko once, respect it, and switch to Club beer. Standing outside on the street is part of the venue, not a lesser option." },
+      tip:"Drink the Kokroko once, respect it, and switch to Club beer. Standing outside on the street is part of the venue, not a lesser option.",
+      week:[{ d:"Tue", w:"Karaoke" }, { d:"Thu", w:"Live band" }, { d:"Fri", w:"Live band" }, { d:"Sat", w:"Live band" }] },
+
+    { id:"zengarden", n:"Zen Garden", a:"Orphan Crescent, Labone", r:"accra", lat:5.5690, lon:-0.1720, t:["music","food"], d:0.25, cost:150, tr:70, star:2,
+      dTxt:"an evening", when:"Evenings, and the night decides what you get",
+      why:"A walled garden strung with lights, trees overhead, long tables and a stage at one end. Live bands most nights and a programme that changes with the day rather than one house sound all week. The right answer when you want an evening out that is not a nightclub, and the rare Accra venue where you can hold a conversation and still hear a band.",
+      how:"Bolt to Labone, GH₵ 30–45, about fifteen minutes when the road is clear. Ask for Zen Garden on Orphan Crescent and any driver will know it.",
+      tip:"Nothing starts before nine. Eat there rather than beforehand, and get in early enough to sit in the garden while it is still quiet. Nights do move around, so ask us or check their page before you commit an evening to it.",
+      week:[{ d:"Fri", w:"Karaoke" }, { d:"Sat", w:"Guest DJ" }, { d:"Sun", w:"Poetry night" }] },
 
     { id:"bloom", n:"Bloom Bar", a:"Osu", r:"accra", lat:5.5588, lon:-0.1795, t:["music"], d:0.25, cost:150, tr:60, star:2,
-      when:"Friday and Saturday, late",
+      dTxt:"an evening", when:"Friday and Saturday, late",
       why:"A garden courtyard strung with lights where Accra's young creative crowd goes: live bands early, DJs playing Afrobeats and amapiano until it gets silly.",
       how:"Same trip as Osu. Bolt back afterwards. Do not walk home at 3am; it is 20 minutes of unlit road.",
-      tip:"Nothing starts before 10pm. Anyone who tells you otherwise has never been." },
+      tip:"Nothing starts before 10pm. Anyone who tells you otherwise has never been.",
+      week:[{ d:"Fri", w:"Bands, then DJs" }, { d:"Sat", w:"Bands, then DJs" }] },
 
     { id:"jazz233", n:"+233 Jazz Bar & Grill", a:"North Ridge", r:"accra", lat:5.5760, lon:-0.1968, t:["music"], d:0.25, cost:120, tr:40, star:2,
-      when:"Most nights from about 8pm",
+      dTxt:"an evening", when:"Most nights from about 8pm",
       why:"Named after the country's dialling code and the closest thing Accra has to an institution for live music: jazz, highlife and Afro-fusion under an open-sided roof, with a serious house band.",
       how:"The closest good night out to this hostel. A ten-minute Bolt at GH₵ 20–30, or a twenty-five minute walk across Ridge.",
-      tip:"Sunday sessions are the local secret. Small cover charge, and worth being early enough to get a table near the stage." },
+      tip:"Sunday sessions are the local secret. Small cover charge, and worth being early enough to get a table near the stage.",
+      week:[{ d:"Sun", w:"The session" }, { d:"Thu", w:"Live jazz" }, { d:"Fri", w:"Live jazz" }, { d:"Sat", w:"Live jazz" }] },
 
     { id:"labadi", n:"Labadi Beach", a:"La", r:"accra", lat:5.5600, lon:-0.1520, t:["beach","music"], d:0.4, cost:50, tr:70, star:2,
       when:"Sunday afternoon",
       why:"Accra's own beach, and on Sundays a full-blown event: live highlife bands, horses on the sand, acrobats, reggae, grilled everything, and half the city out in its good clothes. Not a quiet swim. A party you can walk into.",
       how:"Tro-tro from Circle towards La / Teshie (GH₵ 6–10) and ask for La Pleasure Beach, or Bolt for about GH₵ 40–60. Entry is around GH₵ 30–50.",
+      week:[{ d:"Sun", w:"Live band and horses" }],
       tip:"The undertow here is serious, so stay where other people are swimming. Take almost nothing with you; leave the passport and the good camera in your locker." },
 
     { id:"dubois", n:"W.E.B. Du Bois Memorial Centre", a:"Cantonments", r:"accra", lat:5.5670, lon:-0.1772, t:["roots"], d:0.2, cost:50, tr:60, star:2,
@@ -1257,6 +1279,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       when:"Friday and Saturday nights",
       why:"Thirty kilometres west and a different country: reggae, palm trees, cheap beach huts, and the Academy of African Music and Arts where you can take drumming and dance lessons from people who have been doing it their whole lives. Big Milly's Backyard has been the backpacker anchor for decades and has live drumming on Fridays.",
       how:"Tro-tro from Kaneshie station (GH₵ 12–18, about an hour), then a shared taxi down to the beach. Bolt runs it for GH₵ 90–130.",
+      week:[{ d:"Fri", w:"Drumming at Big Milly's" }],
       tip:"Stay the night rather than day-tripping. The evening is the whole point. Do not walk the beach alone after dark, and do not leave a bag on the sand while you swim." },
 
     { id:"coffins", n:"The fantasy coffin workshops", a:"Teshie", r:"accra", lat:5.5830, lon:-0.1040, t:["craft","art"], d:0.3, cost:50, tr:80, star:3,
@@ -1817,6 +1840,21 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     x.walk = Math.round(x.km / 4.5 * 60);
   });
 
+  var DAY3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var TODAY3 = DAY3[new Date().getUTCDay()];
+
+  /* Venues with a programme that changes by the day render a week strip. */
+  function weekStrip(p) {
+    if (!p.week || !p.week.length) return "";
+    return '<ul class="week">' + p.week.map(function (w) {
+      return '<li' + (w.d === TODAY3 ? ' class="is-today"' : '') + '><b>' + w.d + '</b> ' + w.w + '</li>';
+    }).join("") + '</ul>';
+  }
+
+  /* Places you go to in the evening measure their time in evenings, not in
+     fractions of a working day. */
+  function timeTxt(p) { return p.dTxt || daysTxt(p.d); }
+
   function daysTxt(d) {
     if (d <= 0.2) return "under 2 hrs";
     if (d <= 0.35) return "half a morning";
@@ -1962,10 +2000,11 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
       '<p class="place-why">' + p.why + '</p>' +
       '<ul class="meta">' +
         '<li>' + p.kmTxt + ' away</li>' +
-        '<li>' + daysTxt(p.d) + '</li>' +
+        '<li>' + timeTxt(p) + '</li>' +
         '<li>' + costTxt(p) + '</li>' +
         '<li>' + p.when + '</li>' +
       '</ul>' +
+      weekStrip(p) +
       '<div class="detail" hidden>' +
         '<div class="board"><b>Getting there from our gate</b>' + p.how +
           '<span class="tip"><b>Chale,</b> ' + p.tip + '</span></div>' +
@@ -2303,7 +2342,8 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
         '<p>' + p.why + '</p>' +
         '<div class="board"><b>Getting there</b>' + p.how + '<span class="tip"><b>Chale,</b> ' + p.tip + '</span></div>' +
         '<ul class="meta" style="margin-top:.8rem">' +
-          '<li>' + daysTxt(p.d) + '</li><li>' + costTxt(p) + '</li><li>' + p.when + '</li></ul>' +
+          '<li>' + timeTxt(p) + '</li><li>' + costTxt(p) + '</li><li>' + p.when + '</li></ul>' +
+        weekStrip(p) +
         '<div class="place-actions">' +
           '<button class="mini js-trip2" type="button" aria-pressed="' + inTrip + '">' + (inTrip ? "On my trip" : "Add to trip") + '</button>' +
           '<a class="mini" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&query=' + p.lat + '%2C' + p.lon + '">Open in Maps</a>' +
@@ -2406,7 +2446,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     }
     picked.forEach(function (p) {
       var li = el("li");
-      li.innerHTML = '<span class="n">' + p.n + '</span><span class="m">' + daysTxt(p.d) + " · " + p.kmTxt + '</span>';
+      li.innerHTML = '<span class="n">' + p.n + '</span><span class="m">' + timeTxt(p) + " · " + p.kmTxt + '</span>';
       var b = el("button", null, "Remove");
       b.type = "button";
       b.addEventListener("click", function () { toggleTrip(p.id); });
@@ -2482,6 +2522,17 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     else if (hour >= 18) msg = "Dark. <b>Kelewele</b> is on the corners now, Osu is warming up, and Circle at night is eleven minutes' walk away.";
     else if (hour >= 15) msg = "Afternoon heat. Good hours for a <b>gallery, the Du Bois Centre or the Arts Centre</b>. All indoors, all close.";
     else msg = "Middle of the day. Sit it out with a cold drink; Accra does not reward walking about at one in the afternoon.";
+    var on = [];
+    PLACES.forEach(function (pl) {
+      if (!pl.week) return;
+      pl.week.forEach(function (w) {
+        if (w.d === DAY3[dayN]) on.push(w.w + " at " + pl.n);
+      });
+    });
+    if (on.length && hour >= 14) {
+      var few = on.slice(0, 3).join(", ");
+      msg += ' <b>Tonight:</b> ' + few + (on.length > 3 ? ", and " + (on.length - 3) + " more below." : ".");
+    }
     $("#nowMsg").innerHTML = msg;
   }
   tickClock(); setInterval(tickClock, 30000);
