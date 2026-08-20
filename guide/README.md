@@ -15,7 +15,8 @@ Open it in a browser and it is exactly what goes live.
 | **Two maps** | An Accra map and a Ghana map, drawn from real coordinates. The gold star is the hostel; the dashed rings are 2, 5, 10 and 20 km from the front gate, so "is this a walk or a bus?" is answered by looking. Both zoom and pan: buttons, scroll wheel, double-tap and pinch. Tapping a pin fills the panel beside the map, and on a phone that panel opens as a sheet over the map with a close button. It never moves the reader down the page. |
 | **Distances that are computed** | Nothing says "about 30 minutes away". Every card carries a real great-circle distance from `HOME`, calculated in the browser. Move the hostel and every number moves with it. |
 | **Getting there from *our gate*** | Every place has a transport line naming the station to walk to, what to shout at the mate, and the fare. This is the part guests actually ask reception for, and the part no other guide has. |
-| **What's on today** | The strip under the masthead reads the device clock — Ghana keeps GMT year-round, so UTC *is* Accra time — and says something true for that hour and that day. Saturday at 1pm it points at the Jamestown walking tour. December it warns about Detty December. |
+| **What's on today** | The strip under the masthead reads the device clock (Ghana keeps GMT year-round, so UTC *is* Accra time) and says something true for that hour and that day. From 2pm it also names what is actually on tonight, built from the `week` field on any venue whose programme changes by the day. |
+| **Week strips** | Venues that run a different night on different days carry a row of day chips, with tonight lit in gold. Add one by giving a place a `week` array: `[{d:"Fri", w:"Karaoke"}]`. Day keys are `Sun`…`Sat`. |
 | **My trip** | A basket saved in `localStorage`, with a cost tally covering entry fees and travel only (guests are sleeping in our beds, so accommodation is not counted), a currency box the guest fills in with the day's rate, a shareable link (the trip is encoded in the URL hash) and a print stylesheet. |
 | **Seven routes** | The loops guests keep recommending to each other, day by day, with the hops and fares between them. The shortest is a single day in Accra, timed hour by hour. |
 | **Nearby** | Licensed forex bureaux, bank machines, the walk-in clinic three streets away, the two hospitals with real 24-hour emergency departments, and the pharmacy that never closes. Distances and walking times computed from the gate, and the map links search by name so they land on the right door even where a coordinate is approximate. Lives in the `NEARBY` array. |
@@ -60,7 +61,9 @@ Copy an existing entry in `PLACES` and change it. The fields:
   when:"June–October for volume",
   why:"…",                        // the paragraph on the card
   how:"…",                        // station, fare, how long — from our gate
-  tip:"…" }                       // the thing only someone who works here knows
+  tip:"…",                        // the thing only someone who works here knows
+  dTxt:"an evening",              // optional, overrides the time-needed chip
+  week:[{d:"Fri", w:"Karaoke"}] } // optional, a programme that changes by day
 ```
 
 The place count in the hero (`72 places, checked`) is written by JavaScript
