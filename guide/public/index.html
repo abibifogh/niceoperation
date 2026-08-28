@@ -425,6 +425,9 @@ section { padding-block: var(--bay); }
 .week li.is-today { background: var(--gold-fill); border-color: var(--gold-fill); color: #241A06; }
 .week li.is-today b { color: #241A06; }
 
+.nearcard--note { background: var(--card-2); border-style: dashed; }
+.nearcard--note .addr { font-style: italic; }
+
 .place-actions { display: flex; gap: .4rem; margin-top: auto; padding-top: .5rem; flex-wrap: wrap; }
 .mini {
   font: inherit; font-family: var(--mono); font-size: var(--t--2); text-transform: uppercase;
@@ -1677,12 +1680,32 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
     { g:"money", k:"ATMs", c:"var(--gold-fill)", n:"Bank branches at Kwame Nkrumah Circle",
       a:"Circle interchange", lat:5.5709, lon:-0.2074,
       q:"Ecobank Kwame Nkrumah Circle Accra", hrs:"Machines 24h, counters Mon–Fri 8.30am to 4pm",
-      note:"Ecobank, GCB, Absa and Stanbic all sit around the interchange and all take foreign cards. Use a machine inside a branch, in daylight, and take the cash straight into your money belt rather than counting it on the pavement." },
+      note:"The closest machines to your bed, eleven minutes on foot. Ecobank, GCB, Absa and Stanbic all sit around the interchange and all take foreign cards. Use a machine inside a branch, in daylight, and put the cash away before you step outside rather than counting it on the pavement." },
+
+    { g:"money", k:"ATMs", c:"var(--gold-fill)", n:"Bank machines on Kwame Nkrumah Avenue",
+      a:"Adabraka, fifteen minutes' walk", lat:5.5620, lon:-0.2085,
+      q:"bank ATM Kwame Nkrumah Avenue Adabraka Accra", hrs:"Machines 24h, counters Mon–Fri 8.30am to 4pm",
+      note:"A run of branches south of Circle, and the place to try when the machines at the interchange are empty or out of order. Both happen, particularly at the end of the month and on Sunday evenings, so having a second address in your head saves an hour." },
+
+    { g:"money", k:"ATMs", c:"var(--gold-fill)", n:"Machines on Oxford Street",
+      a:"Osu", lat:5.5570, lon:-0.1818,
+      q:"ATM Oxford Street Osu Accra", hrs:"24h, and the street is busy late",
+      note:"Useful because you are probably already there. Oxford Street is lit and populated well past midnight, which makes it one of the few places it is sensible to use a machine after dark. Stand with your back to the wall and take somebody with you." },
+
+    { g:"money", k:"ATMs", c:"var(--gold-fill)", n:"Accra Mall",
+      a:"Tetteh Quarshie interchange", lat:5.6208, lon:-0.1730,
+      q:"Accra Mall ATM Tetteh Quarshie Accra", hrs:"Mall hours, roughly 9am to 9pm",
+      note:"The fallback when a card has been refused twice and you need it to work. Half a dozen banks under one air-conditioned roof, so if one machine will not take your card the next one probably will. Twenty minutes and about GH₵ 50 in a Bolt, which is worth it on the day you have no money at all." },
 
     { g:"money", k:"Cash", c:"var(--gold-fill)", n:"Bureaux on Oxford Street",
       a:"Osu", lat:5.5566, lon:-0.1820,
       q:"forex bureau Oxford Street Osu Accra", hrs:"Late, and many open Sundays",
       note:"Only worth the trip if you need money outside office hours or at a weekend. Never change money with somebody who approaches you on the street: unlicensed dealing is illegal here, and the arithmetic will not be in your favour." },
+
+    { g:"money", k:"Know this", c:"var(--gold-fill)", n:"Before you stand at a machine",
+      a:"Applies to every ATM in the country", lat:5.5709, lon:-0.2074,
+      q:"", hrs:"", note_only:true,
+      note:"Most machines cap a single withdrawal at around GH₵ 2,000 to 4,000, and charge a fee on top of whatever your own bank takes, so draw larger amounts less often. If a machine offers to bill you in your home currency, say no and choose cedis: accepting is a conversion at their rate and it is a bad one. Machines run dry at month end and over long weekends. Tell your bank you are travelling before you fly, carry a second card from a different network, and keep enough cash that a refused card is an inconvenience rather than an emergency." },
 
     { g:"care", k:"Walk-in doctor", c:"var(--green-fill)", n:"Franklyn Medical Centre",
       a:"Adabla Plaza, 3 Oroko Street, Kokomlemle", lat:5.5698, lon:-0.2136,
@@ -1726,7 +1749,7 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
   ];
 
   var NEARBY_GROUPS = [
-    { k:"money",   n:"Changing money",       s:"Licensed bureaux and bank machines, nearest first" },
+    { k:"money",   n:"Cash and machines",     s:"Licensed bureaux and ATMs, nearest to the gate first" },
     { k:"care",    n:"Doctors and hospitals", s:"From a walk-in clinic to the national referral hospital" },
     { k:"chemist", n:"Chemists",              s:"Including the one that never closes" }
   ];
@@ -2391,22 +2414,28 @@ table.cal tr.is-now td.mon::after { content: " ← now"; font-family: var(--mono
   var nearbyOut = $("#nearbyOut");
   NEARBY_GROUPS.forEach(function (g) {
     var items = NEARBY.filter(function (x) { return x.g === g.k; })
-                      .sort(function (a, b) { return a.km - b.km; });
+                      .sort(function (a, b) {
+                        if (!!a.note_only !== !!b.note_only) return a.note_only ? 1 : -1;
+                        return a.km - b.km;
+                      });
     if (!items.length) return;
     nearbyOut.appendChild(el("div", "near-head", '<h3>' + g.n + '</h3><span>' + g.s + '</span>'));
     var grid = el("div", "near");
     items.forEach(function (x) {
       var reach = x.walk <= 25 ? x.walk + " min walk" : "take a car";
-      var a = el("article", "nearcard");
+      var a = el("article", "nearcard" + (x.note_only ? " nearcard--note" : ""));
       a.style.setProperty("--c", x.c);
       a.innerHTML =
         '<p class="kind">' + x.k + '</p>' +
         '<h4>' + x.n + '</h4>' +
         '<p class="addr">' + x.a + '</p>' +
-        '<ul class="meta"><li>' + x.kmTxt + ' away</li><li>' + reach + '</li><li>' + x.hrs + '</li></ul>' +
+        (x.note_only ? "" :
+          '<ul class="meta"><li>' + x.kmTxt + ' away</li><li>' + reach + '</li>' +
+          (x.hrs ? '<li>' + x.hrs + '</li>' : "") + '</ul>') +
         '<p class="note">' + x.note + '</p>' +
-        '<div class="place-actions"><a class="mini" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&query=' +
-          encodeURIComponent(x.q) + '">Open in Maps</a></div>';
+        (x.note_only ? "" :
+          '<div class="place-actions"><a class="mini" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&query=' +
+          encodeURIComponent(x.q) + '">Open in Maps</a></div>');
       grid.appendChild(a);
     });
     nearbyOut.appendChild(grid);
