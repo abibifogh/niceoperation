@@ -23,9 +23,38 @@ Open it in a browser and it is exactly what goes live.
 | **Ground rules** | Money, tro-tros, stations, taxis, paperwork, health, phones, safety, haggling, manners, food, packing and costs. Plus twelve words of Twi, Ga and Ewe. |
 
 It works offline. Once the page has loaded it makes **no network request of any
-kind** — the three typefaces are embedded as subset WOFF2 data URIs. That is
-deliberate: guests read this on one bar of signal in a tro-tro, and on hostel
-wi-fi that is doing its best.
+kind**: Open Sans and Lora are embedded as subset WOFF2 data URIs, and the seal
+is inline SVG. That is deliberate. Guests read this on one bar of signal in a
+tro-tro, and on hostel wi-fi that is doing its best.
+
+## The design
+
+Everything visual is taken from hostelaccra.com rather than invented.
+
+| | |
+| --- | --- |
+| Ground | `#FAF6EC` cream and `#FFFFFF` white, alternating section by section |
+| Ink | `#2E2A24` for reading, `#4A3418` (the seal's brown) for every heading |
+| Accent | `#9A7B3F`, the gold the active menu item wears |
+| Dark band | `#201E1A`, the colour of the booking bar, used for the live strip, the transport blocks and the footer |
+| Type | Open Sans for everything, light at display sizes; Lora for section titles, as on the Philosophy section |
+| Buttons | Thin outlined rectangles with square corners, filling on hover |
+| Header | The contact strip, then the white bar with the seal left and the menu right, active item in gold, Book now and the two social icons |
+| Rail | The dot column down the right, tracking the section you are in |
+
+The wordmark is lowercase, always: **somewhere nice**.
+
+Two consequences worth knowing. There is no dark mode, because the site has
+none and a toggle the site does not have would break the match. And the
+interests wear eight muted earth hues rather than the bright ones they used to,
+because a kente palette fought the cream.
+
+### The seal
+
+`public/index.html` carries a hand-drawn SVG of the stamp, twice: in the
+masthead and in the footer. It is a close approximation, not the original
+artwork. To swap in the real file, replace the two `<svg class="seal">` blocks
+with an `<img>` pointing at it and keep the `.seal` / `.seal-foot` sizing.
 
 ## Editing the content
 
