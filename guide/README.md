@@ -7,11 +7,24 @@ guest says they are interested in and by how far it is from their bed.
 One file, `public/index.html`. No build step, no framework, no dependencies.
 Open it in a browser and it is exactly what goes live.
 
+It stays one page on purpose. The offline promise below only holds because
+everything arrives in a single load, so instead of splitting it up, the page is
+folded down: five sections, four menu items, and the reference material closed
+until someone opens it.
+
+| Section | What is in it |
+| --- | --- |
+| **Plan** | The month you are in, then a fork: follow a route, or choose by interest. One or the other, never both on screen at once. |
+| **Places** | The nine we would send you to first, with a button to open all of them. Choosing an interest re-ranks and reveals the rest. |
+| **Map** | Accra and Ghana, drawn from real coordinates. |
+| **Practical** | Three closed folds: when to come, cash and health, ground rules. Reached from the **Practical** dropdown in the menu, which opens the right fold for you. |
+| **My trip** | The basket, the tally and the shareable link. |
+
 ## What it does that a printed sheet cannot
 
 | Feature | Why it is there |
 | --- | --- |
-| **Interest picker** | Ten interests, a trip length, a budget and a pace. Every place is scored against the combination, so a surfer and a Pan-Africanist get different lists from the same page. |
+| **Two ways in** | Under **Plan**, a guest picks a lane. *Follow a route* lists the seven loops. *Choose by interest* opens the picker: ten interests, a trip length, a budget and a pace, scored in combination, so a surfer and a Pan-Africanist get different lists from the same page. The choice is remembered in `localStorage` under `sn-plan`. |
 | **Two maps** | An Accra map and a Ghana map, drawn from real coordinates. The gold star is the hostel; the dashed rings are 2, 5, 10 and 20 km from the front gate, so "is this a walk or a bus?" is answered by looking. Both zoom and pan: buttons, scroll wheel, double-tap and pinch. Tapping a pin fills the panel beside the map, and on a phone that panel opens as a sheet over the map with a close button. It never moves the reader down the page. |
 | **Distances that are computed** | Nothing says "about 30 minutes away". Every card carries a real great-circle distance from `HOME`, calculated in the browser. Move the hostel and every number moves with it. |
 | **Getting there from *our gate*** | Every place has a transport line naming the station to walk to, what to shout at the mate, and the fare. This is the part guests actually ask reception for, and the part no other guide has. |
@@ -23,8 +36,8 @@ Open it in a browser and it is exactly what goes live.
 | **Ground rules** | Money, tro-tros, stations, taxis, paperwork, health, phones, safety, haggling, manners, food, packing and costs. Plus twelve words of Twi, Ga and Ewe. |
 
 It works offline. Once the page has loaded it makes **no network request of any
-kind**: Open Sans and Lora are embedded as subset WOFF2 data URIs, and the seal
-is inline SVG. That is deliberate. Guests read this on one bar of signal in a
+kind**: Open Sans and Lora are embedded as subset WOFF2 data URIs, and both
+seals are base64 data URIs. That is deliberate. Guests read this on one bar of signal in a
 tro-tro, and on hostel wi-fi that is doing its best.
 
 ## The design
@@ -39,7 +52,7 @@ Everything visual is taken from hostelaccra.com rather than invented.
 | Dark band | `#201E1A`, the colour of the booking bar, used for the live strip, the transport blocks and the footer |
 | Type | Open Sans for everything, light at display sizes; Lora for section titles, as on the Philosophy section |
 | Buttons | Thin outlined rectangles with square corners, filling on hover |
-| Header | The contact strip, then the white bar with the seal left and the menu right, active item in gold, Book now and the two social icons |
+| Header | The contact strip, then the white bar with the seal left and the menu right, active item in gold, Book now and the two social icons. Four items: Plan, Places, Map, and a Practical dropdown |
 | Rail | The dot column down the right, tracking the section you are in |
 
 The wordmark is lowercase, always: **somewhere nice**.
@@ -51,10 +64,12 @@ because a kente palette fought the cream.
 
 ### The seal
 
-`public/index.html` carries a hand-drawn SVG of the stamp, twice: in the
-masthead and in the footer. It is a close approximation, not the original
-artwork. To swap in the real file, replace the two `<svg class="seal">` blocks
-with an `<img>` pointing at it and keep the `.seal` / `.seal-foot` sizing.
+The real artwork, embedded twice as a data URI: the colour seal
+(`class="seal"`) in the masthead, and the white knockout (`class="seal-foot"`)
+in the footer on the dark band. Both are `<img>` tags with explicit
+`width="256" height="256"` so the layout does not jump before they decode. To
+replace either, base64 the new file and swap the `src`; the sizing lives in
+`.seal` and `.seal-foot` and does not need touching.
 
 ## Editing the content
 
@@ -271,26 +286,10 @@ It is a single self-contained file. It can equally be dropped into
 hostelaccra.com as a page, put in a subfolder, or emailed to a guest as an
 attachment that still works with the plane's wi-fi off.
 
-## The design, briefly
-
-The look comes from two things a guest sees on the walk to Circle: kente
-strip-weaving, where narrow bands are woven separately and sewn edge to edge,
-and hand-painted tro-tro destination boards.
-
-- The weave is the only rule used between chapters, and each place card wears
-  one band per interest it satisfies — so the edge of a card tells you what it
-  is before you have read a word.
-- Transport directions are set as a destination board: mono, uppercase, gold
-  on near-black.
-- Bricolage Grotesque for display, Karla for reading, IBM Plex Mono for fares,
-  distances and station names, because timetable data deserves timetable type.
-- Light and dark are both designed, with a manual toggle that overrides the
-  device. Light is the default: this gets read outdoors.
-
 ## What is deliberately not here
 
 No analytics, no cookie banner, no third-party anything, no affiliate links
-and no paid placements — the footer says so out loud, which is the only reason
+and no paid placements. The footer says so out loud, which is the only reason
 a guest has to believe the recommendations. Nothing is claimed that cannot be
 checked, and everything that moves (prices, dates, timetables) is labelled as
 a sense of scale rather than a quotation.
