@@ -1662,12 +1662,11 @@ food are not counted.</p>
      `q` is what the map link searches for, so it lands on the right door even
      where the coordinate is a few streets out.
 
-     Coordinates for the ATTC machines, Entrance and Iran Clinic are estimated
-     from their street addresses, because every map API we could have geocoded
-     them against is blocked from here. The distances and walk times they
-     produce are therefore approximate; the map links are not, because they
-     search by name. Worth correcting with real figures when someone is
-     standing outside with a phone. */
+     The Ring Road Central machines and Entrance carry real pins, read off
+     Google Maps URLs sent from the property. Iran Clinic is still estimated
+     from its street address, because every map API we could have geocoded it
+     against is blocked from here, so its distance and walk time are
+     approximate. Its map link is not, because it searches by name. */
   var NEARBY = [
     { g:"money", k:"Cash", c:"var(--gold-fill)", n:"Forex bureaux, Ring Road Central",
       a:"Ring Road Central, at the top of our street", lat:5.5690, lon:-0.2090,
@@ -1679,11 +1678,11 @@ food are not counted.</p>
       q:"forex bureau Farrar Avenue Adabraka Accra", hrs:"Mon–Sat office hours",
       note:"A second run of bureaux fifteen minutes away, worth walking to if the Ring Road rate looks mean. Compare two before you change anything larger than a couple of hundred dollars." },
 
-    { g:"money", k:"ATMs", c:"var(--gold-fill)", n:"Machines on Ring Road Central, by ATTC",
-      a:"The Technical Training Centre end of Ring Road Central", lat:5.5739, lon:-0.2089,
-      q:"Stanbic Bank Ring Road Central Accra",
+    { g:"money", k:"ATMs", c:"var(--gold-fill)", n:"Machines on Ring Road Central",
+      a:"At the Société Générale head office, by ATTC", lat:5.571970, lon:-0.207784,
+      q:"Société Générale Ghana Head Office Ring Road Central Accra",
       hrs:"Machines 24h, counters Mon–Fri 8.30am to 4pm",
-      note:"The closest machines to your bed and the ones to try first. Stanbic sits on this stretch at Pyramid House and takes foreign cards, and there are others within a couple of minutes of it. Everybody here says ATTC rather than the full name of the training centre, so that is the word to give a driver. Draw in daylight, use a machine set into a branch wall rather than one standing on its own, and put the money away before you step back onto the road instead of counting it there." },
+      note:"The closest machines to your bed and the ones to try first. The Société Générale head office is the landmark and you cannot miss it, with Stanbic further along the same stretch at Pyramid House. Both take foreign cards. Say ATTC for this end of the road and any driver will know it. Draw in daylight, use a machine set into a branch wall rather than one standing on its own, and put the money away before you step back onto the road instead of counting it there." },
 
     { g:"money", k:"ATMs", c:"var(--gold-fill)", n:"Bank machines on Kwame Nkrumah Avenue",
       a:"Adabraka, fifteen minutes' walk", lat:5.5620, lon:-0.2085,
@@ -1716,9 +1715,9 @@ food are not counted.</p>
       note:"The closest doctor to your bed, a few streets away. The right call for a fever, a stomach that will not settle, a malaria test, or something that needs cleaning and dressing. Anything worse than that, go to Ridge." },
 
     { g:"care", k:"Hospital · 24h", c:"var(--red-fill)", n:"Entrance University Hospital",
-      a:"19 Abele Street, Kokomlemle", lat:5.5710, lon:-0.2130,
+      a:"19 Abele Road, Kokomlemle", lat:5.578663, lon:-0.209968,
       q:"Entrance University Hospital Abele Street Kokomlemle Accra", hrs:"24 hours. Emergency line 054 961 3825",
-      note:"The nearest hospital to this building by a long way, and close enough to walk to in daylight. Private, so it is quick and you pay: bring a card and your insurance policy number. This is the sensible first call at night for anything that is more than a clinic case but not a catastrophe." },
+      note:"The nearest hospital to this building, ten minutes up the road and walkable in daylight. Private, so it is quick and you pay: bring a card and your insurance policy number. This is the sensible first call at night for anything that is more than a clinic case but not a catastrophe." },
 
     { g:"care", k:"Clinic", c:"var(--green-fill)", n:"Iran Clinic",
       a:"Kojo Thompson Road, Adabraka, by the overhead", lat:5.5650, lon:-0.2095,
