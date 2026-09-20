@@ -77,6 +77,22 @@
   --c-water:  #4E7A80;
   --c-green:  #5A7350;
 
+  /* The nearby cards colour their edge by what the thing is. These were
+     referenced from the start and never declared, so every card fell back to
+     the grey rule and the whole scheme was invisible. */
+  --gold-fill:  #9A7B3F;   /* money */
+  --green-fill: #5A7350;   /* a clinic you walk into */
+  --teal-fill:  #4E7A80;   /* chemists */
+  --plum-fill:  #6B4A5E;   /* private and specialist */
+  --clay-fill:  #A65A3C;
+  --red-fill:   #A32E22;   /* hospitals, and anything open all night */
+
+  /* The all-night marker. Louder than anything else on the page, on purpose:
+     somebody reading this at 3am is not reading, they are scanning. */
+  --urgent:      #A32E22;
+  --urgent-lit:  #C8402F;
+  --urgent-pale: #F7E6E2;
+
   --focus:    #9A7B3F;
   --shadow:   0 1px 2px rgba(74,52,24,.04);
   --shadow-lift: 0 6px 24px -12px rgba(74,52,24,.22);
@@ -476,6 +492,40 @@ section { padding-block: var(--bay); }
 .board .tip { display: block; margin-top: .7rem; padding-top: .7rem; border-top: 1px solid rgba(247,241,228,.18); color: #DCD3C2; }
 .board .tip b { display: inline; margin: 0; }
 .place .detail[hidden] { display: none; }
+/* Open all night. A red badge with a beating dot, because the person looking
+   for this is frightened and scanning, not reading. The whole card takes the
+   red edge and a tinted heading so it is findable from across the screen.
+   The beat stops for anyone who has asked for less motion; the badge does not
+   depend on it to be read. */
+/* border-color must come first: as a shorthand it resets all four sides,
+   so the left accent has to be set after it or it is wiped out. */
+.nearcard.is-24 { border-color: #E8CFC9; border-left-color: var(--urgent); }
+.nearcard.is-24 h4 { color: var(--urgent); }
+.badge24 {
+  display: inline-flex; align-items: center; gap: .45rem;
+  background: var(--urgent); color: #FFF;
+  font-size: var(--t--2); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em;
+  padding: .3rem .6rem .3rem .5rem; border-radius: 2px;
+  align-self: flex-start; white-space: nowrap;
+}
+.badge24 .beat {
+  width: 7px; height: 7px; border-radius: 50%; background: #FFF; flex: none;
+  animation: beat 1.4s ease-in-out infinite;
+}
+@keyframes beat {
+  0%, 100% { transform: scale(1);   opacity: 1; box-shadow: 0 0 0 0 rgba(255,255,255,.7); }
+  18%      { transform: scale(1.5); opacity: 1; box-shadow: 0 0 0 4px rgba(255,255,255,0); }
+  36%      { transform: scale(1);   opacity: .85; }
+  54%      { transform: scale(1.3); opacity: 1; }
+  72%      { transform: scale(1);   opacity: .85; }
+}
+@media (prefers-reduced-motion: reduce) { .badge24 .beat { animation: none; } }
+@media print {
+  .nearcard.is-24 { border-left-color: #000; }
+  .badge24 { background: none; color: #000; border: 1px solid #000; }
+  .badge24 .beat { display: none; }
+}
 .nearcard--note { background: var(--card-2); border-style: dashed; }
 .nearcard--note .addr { font-style: italic; }
 .near-head { margin: 3rem 0 1.2rem; border-bottom: 1px solid var(--line); padding-bottom: .7rem; }
@@ -1715,9 +1765,9 @@ food are not counted.</p>
       q:"Franklyn Medical Centre Oroko Street Kokomlemle Accra", hrs:"Mon–Fri 8am to 4pm, weekends and holidays 8am to 1pm",
       note:"The closest doctor to your bed, a few streets away. The right call for a fever, a stomach that will not settle, a malaria test, or something that needs cleaning and dressing. Anything worse than that, go to Ridge." },
 
-    { g:"care", k:"Hospital · 24h", c:"var(--red-fill)", n:"Entrance University Hospital",
+    { g:"care", k:"Hospital", c:"var(--red-fill)", open24:true, n:"Entrance University Hospital",
       a:"19 Abele Road, Kokomlemle", lat:5.578663, lon:-0.209968,
-      q:"Entrance University Hospital Abele Street Kokomlemle Accra", hrs:"24 hours. Emergency line 054 961 3825",
+      q:"Entrance University Hospital Abele Street Kokomlemle Accra", hrs:"Emergency line 054 961 3825",
       note:"The nearest hospital to this building, ten minutes up the road and walkable in daylight. Private, so it is quick and you pay: bring a card and your insurance policy number. This is the sensible first call at night for anything that is more than a clinic case but not a catastrophe." },
 
     { g:"care", k:"Clinic", c:"var(--green-fill)", n:"Iran Clinic",
@@ -1725,24 +1775,24 @@ food are not counted.</p>
       q:"Iran Clinic Kojo Thompson Road Adabraka Accra", hrs:"Open daily and late. Ring before a middle-of-the-night run",
       note:"A long-standing clinic ten minutes down the road, much nearer than Ridge and used to walk-ins. Good for a fever, a malaria test, a dressing or a drip. Published hours disagree on whether the emergency side runs all night, so telephone first if it is three in the morning: 030 222 2402." },
 
-    { g:"care", k:"Hospital · 24h", c:"var(--red-fill)", n:"Greater Accra Regional Hospital",
+    { g:"care", k:"Hospital", c:"var(--red-fill)", open24:true, n:"Greater Accra Regional Hospital",
       a:"Castle Road, Ridge. Everyone calls it Ridge Hospital", lat:5.5595, lon:-0.2013,
-      q:"Greater Accra Regional Hospital Ridge Accra", hrs:"Accident and emergency, 24 hours",
+      q:"Greater Accra Regional Hospital Ridge Accra", hrs:"Accident and emergency",
       note:"The big public hospital, and one every driver in the city can find without being told twice. Not the nearest any more, but the one to give a taxi driver if somebody is badly hurt. Public, so unless you arrive urgent you will wait. Say Ridge Hospital, not the new name, or you will get a blank look." },
 
-    { g:"care", k:"Hospital · 24h", c:"var(--red-fill)", n:"37 Military Hospital",
+    { g:"care", k:"Hospital", c:"var(--red-fill)", open24:true, n:"37 Military Hospital",
       a:"Liberation Road, at the 37 junction", lat:5.5860, lon:-0.1880,
-      q:"37 Military Hospital Accra", hrs:"Emergency department and pharmacy, 24 hours",
+      q:"37 Military Hospital Accra", hrs:"Emergency department, and the pharmacy too",
       note:"Open to civilians, and the most dependable emergency department in this half of Accra. Its pharmacy is open all night too, which makes this the answer at three in the morning when nothing else is." },
 
-    { g:"care", k:"Private", c:"var(--plum-fill)", n:"Nyaho Medical Centre",
+    { g:"care", k:"Private", c:"var(--plum-fill)", open24:true, n:"Nyaho Medical Centre",
       a:"Airport Residential", lat:5.6005, lon:-0.1815,
-      q:"Nyaho Medical Centre Accra", hrs:"Clinics daily, emergency cover 24 hours",
+      q:"Nyaho Medical Centre Accra", hrs:"Emergency cover round the clock, clinics in the day",
       note:"Fast, private and used to foreign patients and foreign insurers. Expensive by Ghanaian standards and cheap by yours. Bring a card and your policy number; most insurers will settle with them directly." },
 
-    { g:"care", k:"Referral", c:"var(--red-fill)", n:"Korle Bu Teaching Hospital",
+    { g:"care", k:"Referral", c:"var(--red-fill)", open24:true, n:"Korle Bu Teaching Hospital",
       a:"Korle Bu", lat:5.5365, lon:-0.2290,
-      q:"Korle Bu Teaching Hospital Accra", hrs:"24 hours",
+      q:"Korle Bu Teaching Hospital Accra", hrs:"",
       note:"The national referral hospital. You do not choose to come here; you are sent, for something a smaller hospital cannot handle. Worth knowing the name so you recognise it if it is said to you." },
 
     { g:"care", k:"Sexual health", c:"var(--plum-fill)", n:"Marie Stopes, Kokomlemle",
@@ -1755,16 +1805,16 @@ food are not counted.</p>
       q:"pharmacy Ring Road Central Kokomlemle Accra", hrs:"Most open 8am to 8pm or later",
       note:"Several within a ten-minute walk. Ghanaian pharmacists are well trained and will sell you most things without a prescription, including antimalarials and rehydration salts. Describe the symptom rather than naming a brand from home; the brand here will be different and probably cheaper." },
 
-    { g:"chemist", k:"Chemist · 24h", c:"var(--teal-fill)", n:"The all-night counter at 37",
+    { g:"chemist", k:"Chemist", c:"var(--teal-fill)", open24:true, n:"The all-night counter at 37",
       a:"37 Military Hospital, Liberation Road", lat:5.5860, lon:-0.1880,
-      q:"37 Military Hospital pharmacy Accra", hrs:"24 hours",
+      q:"37 Military Hospital pharmacy Accra", hrs:"",
       note:"When everything local has shut and somebody needs something tonight, this is where the taxi goes. Take cash." }
   ];
 
   var NEARBY_GROUPS = [
     { k:"money",   n:"Cash and machines",     s:"Licensed bureaux and ATMs, nearest to the gate first" },
-    { k:"care",    n:"Doctors and hospitals", s:"From a walk-in clinic to the national referral hospital" },
-    { k:"chemist", n:"Chemists",              s:"Including the one that never closes" }
+    { k:"care",    n:"Doctors and hospitals", s:"Anything marked in red is open all night" },
+    { k:"chemist", n:"Chemists",              s:"Anything marked in red is open all night" }
   ];
 
   var MONTHS = [
@@ -2463,12 +2513,14 @@ food are not counted.</p>
     var grid = el("div", "near");
     items.forEach(function (x) {
       var reach = x.walk <= 25 ? x.walk + " min walk" : "take a car";
-      var a = el("article", "nearcard" + (x.note_only ? " nearcard--note" : ""));
+      var a = el("article", "nearcard" + (x.note_only ? " nearcard--note" : "") +
+                                (x.open24 ? " is-24" : ""));
       a.style.setProperty("--c", x.c);
       a.innerHTML =
         '<p class="kind">' + x.k + '</p>' +
         '<h4>' + x.n + '</h4>' +
         '<p class="addr">' + x.a + '</p>' +
+        (x.open24 ? '<p class="badge24"><span class="beat" aria-hidden="true"></span>Open 24 hours</p>' : "") +
         (x.note_only ? "" :
           '<ul class="meta"><li>' + x.kmTxt + ' away</li><li>' + reach + '</li>' +
           (x.hrs ? '<li>' + x.hrs + '</li>' : "") + '</ul>') +

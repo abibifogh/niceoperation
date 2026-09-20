@@ -33,6 +33,7 @@ until someone opens it.
 | **My trip** | A basket saved in `localStorage`, with a cost tally covering **transport and entry fees only** (guests are sleeping in our beds, so neither a bed nor a meal is ever counted), said out loud above every list of amounts and inside every route, a currency box the guest fills in with the day's rate, a shareable link (the trip is encoded in the URL hash) and a print stylesheet. |
 | **Seven routes** | The loops guests keep recommending to each other, day by day, with the hops and fares between them. The shortest is a single day in Accra, timed hour by hour. |
 | **Nearby** | Licensed forex bureaux, four sets of bank machines from the ones at the Société Générale head office five minutes away out to the mall that always works, the walk-in clinic three streets away, the hospitals with real 24-hour emergency departments, and the pharmacy that never closes. Distances and walking times computed from the gate, and the map links search by name so they land on the right door even where a coordinate is approximate. An entry can set `note_only:true` to render as advice rather than a destination: no distance, no map link, and it sorts to the end of its group. Lives in the `NEARBY` array. |
+| **Open all night** | Any hospital or chemist that runs 24 hours wears a red badge with a beating dot, a red heading and a red edge, so it is findable by scanning rather than reading. Set `open24:true` on a `NEARBY` entry. The beat stops under `prefers-reduced-motion`, and the badge prints as an outline rather than a block of red. |
 | **Ground rules** | Money, tro-tros, stations, taxis, paperwork, health, phones, safety, haggling, manners, food, packing and costs. Plus twelve words of Twi, Ga and Ewe. |
 
 It works offline. Once the page has loaded it makes **no network request of any
@@ -49,6 +50,7 @@ Everything visual is taken from hostelaccra.com rather than invented.
 | Ground | `#FAF6EC` cream and `#FFFFFF` white, alternating section by section |
 | Ink | `#2E2A24` for reading, `#4A3418` (the seal's brown) for every heading |
 | Accent | `#9A7B3F`, the gold the active menu item wears |
+| Alarm | `#A32E22`, used for one thing only: open around the clock. Nothing else on the page is red, which is what makes it work |
 | Dark band | `#201E1A`, the colour of the booking bar, used for the live strip, the transport blocks and the footer |
 | Type | Open Sans for everything, light at display sizes; Lora for section titles, as on the Philosophy section |
 | Buttons | Thin outlined rectangles with square corners, filling on hover |
