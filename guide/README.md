@@ -30,14 +30,14 @@ until someone opens it.
 | **Getting there from *our gate*** | Every place has a transport line naming the station to walk to, what to shout at the mate, and the fare. This is the part guests actually ask reception for, and the part no other guide has. |
 | **What's on today** | The strip under the masthead reads the device clock (Ghana keeps GMT year-round, so UTC *is* Accra time) and says something true for that hour and that day. From 2pm it also names what is actually on tonight, built from the `week` field on any venue whose programme changes by the day. |
 | **Week strips** | Venues that run a different night on different days carry a row of day chips, with tonight lit in gold. Add one by giving a place a `week` array: `[{d:"Fri", w:"Karaoke"}]`. Day keys are `Sun`…`Sat`. |
-| **My trip** | A basket saved in `localStorage`, with a cost tally covering entry fees and travel only (guests are sleeping in our beds, so accommodation is not counted), a currency box the guest fills in with the day's rate, a shareable link (the trip is encoded in the URL hash) and a print stylesheet. |
+| **My trip** | A basket saved in `localStorage`, with a cost tally covering **transport and entry fees only** (guests are sleeping in our beds, so neither a bed nor a meal is ever counted), said out loud above every list of amounts and inside every route, a currency box the guest fills in with the day's rate, a shareable link (the trip is encoded in the URL hash) and a print stylesheet. |
 | **Seven routes** | The loops guests keep recommending to each other, day by day, with the hops and fares between them. The shortest is a single day in Accra, timed hour by hour. |
-| **Nearby** | Licensed forex bureaux, four sets of bank machines from the interchange eleven minutes away out to the mall that always works, the walk-in clinic three streets away, the hospitals with real 24-hour emergency departments, and the pharmacy that never closes. Distances and walking times computed from the gate, and the map links search by name so they land on the right door even where a coordinate is approximate. An entry can set `note_only:true` to render as advice rather than a destination: no distance, no map link, and it sorts to the end of its group. Lives in the `NEARBY` array. |
+| **Nearby** | Licensed forex bureaux, four sets of bank machines from the ones by ATTC four minutes away out to the mall that always works, the walk-in clinic three streets away, the hospitals with real 24-hour emergency departments, and the pharmacy that never closes. Distances and walking times computed from the gate, and the map links search by name so they land on the right door even where a coordinate is approximate. An entry can set `note_only:true` to render as advice rather than a destination: no distance, no map link, and it sorts to the end of its group. Lives in the `NEARBY` array. |
 | **Ground rules** | Money, tro-tros, stations, taxis, paperwork, health, phones, safety, haggling, manners, food, packing and costs. Plus twelve words of Twi, Ga and Ewe. |
 
 It works offline. Once the page has loaded it makes **no network request of any
-kind**: Open Sans and Lora are embedded as subset WOFF2 data URIs, and both
-seals are base64 data URIs. That is deliberate. Guests read this on one bar of signal in a
+kind**: Open Sans and Lora are embedded as subset WOFF2 data URIs, and the
+seals and both icons are base64 data URIs. That is deliberate. Guests read this on one bar of signal in a
 tro-tro, and on hostel wi-fi that is doing its best.
 
 ## The design
@@ -70,6 +70,21 @@ in the footer on the dark band. Both are `<img>` tags with explicit
 `width="256" height="256"` so the layout does not jump before they decode. To
 replace either, base64 the new file and swap the `src`; the sizing lives in
 `.seal` and `.seal-foot` and does not need touching.
+
+The tab icon is the **emblem alone**, cropped out of the same artwork: the
+three hills and the water lines, without the wordmark. The full stamp is
+illegible below about 48 pixels, and a browser tab renders a favicon at 16.
+The home-screen icon (`apple-touch-icon`) is the whole seal, because there it
+has the room. Both are PNG data URIs, so they cost no request either.
+
+### What every amount means
+
+**Transport and entry fees. Never a bed, never a meal, never shopping.** This
+is stated above the routes, above the place list, inside each route, and under
+the trip tally, because a guest who misreads it plans their money wrong. Place
+cards spell out the split rather than printing one number: *GH₵ 100 entry +
+GH₵ 40 transport*. `costTxt()` builds that string; `cost` is the entry fee and
+`tr` is the fare, both in cedis.
 
 ## Editing the content
 
