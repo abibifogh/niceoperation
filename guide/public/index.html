@@ -447,6 +447,58 @@ table.cal tr.is-now .mon{font-weight:600}
 .fold-body > h3{margin-top:2.4rem}
 .fold-body > .lede{margin-bottom:.4rem;text-align:left;margin-left:0}
 
+/* ── been there, and found somewhere ────────────────────────────────────
+   Two things a guest can give back: a rating of a place we sent them to, and
+   a place we have never heard of. Both are the guest's own until they press
+   send, which is why neither needs a server behind it. */
+.rateme{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--line-2)}
+.rateme .rl{font-size:.86rem;color:var(--ink-3)}
+.rstars{display:inline-flex;gap:2px}
+.rstars button{
+  background:none;border:0;cursor:pointer;padding:.1rem .12rem;line-height:1;
+  font-size:1.3rem;color:var(--line-3);transition:color .12s ease,transform .1s ease;
+}
+.rstars button:hover,.rstars button:focus-visible{transform:scale(1.15)}
+.rstars button.on{color:var(--gold-lit)}
+.rstars:hover button{color:var(--line-3)}
+.rstars button:hover,.rstars button:hover ~ button{color:var(--line-3)}
+.rateme .clearrate{background:none;border:0;cursor:pointer;font-size:.82rem;color:var(--ink-3);text-decoration:underline;text-underline-offset:3px}
+.rateme .clearrate:hover{color:var(--urgent)}
+.rated-note{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;color:var(--gold);font-weight:600}
+.rated-note s{text-decoration:none;color:var(--line-3);padding:0 .3rem}
+/* Inside an open card the widget already says it, so the line is noise. */
+.place.is-open .rated-note{display:none}
+
+.tell{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(1.3rem,3vw,2rem);margin-top:1.8rem}
+.tell .fields{display:grid;gap:12px;grid-template-columns:1fr;margin-top:1.3rem}
+@media(min-width:680px){
+  .tell .fields{grid-template-columns:1fr 1fr}
+  .tell .wide{grid-column:1/-1}
+}
+.field label{display:block;font-size:.84rem;font-weight:600;color:var(--ink-2);margin-bottom:.3rem}
+.field label .opt{font-weight:400;color:var(--ink-3)}
+.field input,.field textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:8px;background:#fff;
+  padding:.6rem .75rem;font-size:.95rem;font-family:inherit;color:var(--ink);
+}
+.field input:focus,.field textarea:focus{outline:2px solid var(--gold);outline-offset:0;border-color:var(--gold)}
+.field textarea{min-height:5.5rem;resize:vertical;line-height:1.55}
+.field .hint{font-size:.78rem;color:var(--ink-3);margin-top:.25rem}
+.field.bad input,.field.bad textarea{border-color:var(--urgent)}
+.field .err{font-size:.8rem;color:var(--urgent);margin-top:.25rem;font-weight:600}
+.field .err[hidden]{display:none}
+.sendrow{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:1.2rem}
+.btn--wa{background:#1FA855;border-color:#1FA855;color:#fff}
+.btn--wa:hover{background:#188845;border-color:#188845}
+.sendnote{font-size:.82rem;color:var(--ink-3);flex-basis:100%}
+.ratings-box{border-top:1px solid var(--line-2);margin-top:1.6rem;padding-top:1.4rem}
+.ratings-box[hidden]{display:none}
+.ratings-box h3{font-family:var(--sans);font-size:1rem;font-weight:600;color:var(--ink)}
+.ratings-list{list-style:none;display:grid;gap:6px;margin-top:.8rem}
+.ratings-list li{display:flex;align-items:center;gap:.8rem;font-size:.92rem;color:var(--ink-2)}
+.ratings-list .nm{flex:1;min-width:0}
+.ratings-list .sc{color:var(--gold-lit);letter-spacing:1px;white-space:nowrap}
+
 /* ── my trip ────────────────────────────────────────────────────────────── */
 .trip-grid{display:grid;gap:1.4rem;grid-template-columns:1fr;margin-top:1.8rem;align-items:start}
 @media(min-width:860px){ .trip-grid{grid-template-columns:1.4fr 1fr;gap:2rem} }
@@ -572,6 +624,8 @@ table.cal tr.is-now .mon{font-weight:600}
       <p class="money-note">Every amount is <b>transport and entry fees</b>. Your bed and your
       food are not counted.</p>
       <div id="listOut"></div>
+      <p class="lede" style="margin-top:2rem">Been to any of these? Open a card and rate it.
+      Know somewhere we have missed? <a href="#tellus">Tell us about it</a>.</p>
     </div>
   </section>
 
@@ -817,6 +871,61 @@ table.cal tr.is-now .mon{font-weight:600}
       <div class="phrase" style="--c:var(--clay)"><span class="lang">On the bus</span><b>Mate, bus stop!</b><span class="say">MAH-tay, bus stop</span><span class="mean">The only way to make a tro-tro let you out. Say it early.</span></div>
     </div></div>
     </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="tellus">
+    <div class="wrap">
+      <h2>Found somewhere good?</h2>
+      <p class="lede">Half of what is on this page came from guests. Tell us about a place and
+      we will go and look at it ourselves before it goes in.</p>
+
+      <div class="tell">
+        <form id="suggestForm" novalidate>
+          <div class="fields">
+            <div class="field" id="f-name">
+              <label for="sName">What is it called?</label>
+              <input id="sName" name="name" type="text" maxlength="90" autocomplete="off"
+                     placeholder="Auntie Muni's waakye">
+              <p class="err" id="e-name" hidden>We need a name, even an approximate one.</p>
+            </div>
+            <div class="field">
+              <label for="sWhere">Where is it? <span class="opt">optional</span></label>
+              <input id="sWhere" name="where" type="text" maxlength="90" autocomplete="off"
+                     placeholder="Labone, behind the police station">
+            </div>
+            <div class="field wide">
+              <label for="sWhy">Why should we send people? <span class="opt">optional</span></label>
+              <textarea id="sWhy" name="why" maxlength="700"
+                        placeholder="What it is, what you paid, what time you went, and anything we would get wrong if we turned up without being told."></textarea>
+              <p class="hint">Prices and opening hours help more than anything else.</p>
+            </div>
+            <div class="field">
+              <label for="sWho">Your name <span class="opt">optional</span></label>
+              <input id="sWho" name="who" type="text" maxlength="60" autocomplete="name"
+                     placeholder="So we can thank you">
+            </div>
+          </div>
+          <div class="sendrow">
+            <button class="btn btn--wa" type="button" id="sendWa">Send on WhatsApp</button>
+            <button class="btn" type="button" id="sendMail">Send by email</button>
+            <p class="sendnote">Opens WhatsApp or your mail app with the message written out. Nothing
+            leaves this page until you press send there, and nothing is stored anywhere else.</p>
+          </div>
+        </form>
+
+        <div class="ratings-box" id="ratingsBox" hidden>
+          <h3 id="ratingsHead"></h3>
+          <ul class="ratings-list" id="ratingsList"></ul>
+          <div class="sendrow">
+            <button class="btn btn--wa" type="button" id="rateWa">Send ratings on WhatsApp</button>
+            <button class="btn" type="button" id="rateMail">Send by email</button>
+            <button class="btn" type="button" id="rateClear">Clear my ratings</button>
+            <p class="sendnote">Your ratings are kept on this phone only. Sending them tells us what
+            is worth keeping on the list and what is not.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1868,7 +1977,7 @@ table.cal tr.is-now .mon{font-weight:600}
   }
 
   function card(p) {
-    var isOpen = !!S.open[p.id];
+    var isOpen = !!S.open[p.id], mine = S.rated[p.id] || 0;
     var a = el("article", "place" + (S.sel === p.id ? " is-sel" : "") + (isOpen ? " is-open" : ""));
     a.id = "p-" + p.id;
     var inTrip = S.trip.indexOf(p.id) > -1;
@@ -1878,7 +1987,9 @@ table.cal tr.is-now .mon{font-weight:600}
           '<span class="h4" role="heading" aria-level="4"></span>' +
           '<span class="place-one">' + oneLine(p) + '</span>' +
           '<span class="facts">' + strip(p) + '<b>' + p.kmTxt + '</b> away' +
-            '<s>&middot;</s>' + timeTxt(p) + '<s>&middot;</s>' + shortCost(p) + '</span>' +
+            '<s>&middot;</s>' + timeTxt(p) + '<s>&middot;</s>' + shortCost(p) +
+            (mine ? '<span class="rated-note"><s>&middot;</s>you gave it ' +
+              "★".repeat(mine) + '</span>' : "") + '</span>' +
         '</span>' +
         '<span class="stars" aria-label="' + p.star + ' out of 3">' + "★".repeat(p.star) + '</span>' +
         '<span class="chev" aria-hidden="true">' +
@@ -1902,6 +2013,8 @@ table.cal tr.is-now .mon{font-weight:600}
     var nm = a.querySelector(".h4");
     nm.className = "h4"; nm.textContent = p.n;
     nm.style.cssText = "font-family:var(--serif);font-size:1.17rem;color:var(--brown);line-height:1.25;display:block";
+
+    a.querySelector(".place-actions").insertAdjacentElement("beforebegin", rateWidget(p));
 
     var head = a.querySelector(".place-head"), det = a.querySelector(".detail");
     head.addEventListener("click", function () {
@@ -1946,6 +2059,169 @@ table.cal tr.is-now .mon{font-weight:600}
       listOut.appendChild(wrap);
     }
   }
+  /* --- Rating a place, and telling us about a new one -------------------- */
+  /* Neither needs a server. A rating lives on the guest's own phone until
+     they choose to send it, and a suggestion is written into a WhatsApp or
+     mail message that they send themselves. So the page still asks nothing of
+     the network after it has loaded, and we never hold anybody's data. */
+  var WA = "233543743505", MAILTO = "info@hostelaccra.com";
+
+  function loadRatings() {
+    try {
+      var r = JSON.parse(localStorage.getItem("sn-rated") || "{}");
+      return (r && typeof r === "object" && !Array.isArray(r)) ? r : {};
+    } catch (e) { return {}; }
+  }
+  function saveRatings() {
+    try { localStorage.setItem("sn-rated", JSON.stringify(S.rated)); } catch (e) {}
+  }
+  S.rated = loadRatings();
+
+  function setRating(id, v) {
+    if (v) S.rated[id] = v; else delete S.rated[id];
+    saveRatings();
+    renderList();
+    renderRatings();
+  }
+
+  /* The five-star control, built as a radio group so arrow keys work. */
+  function rateWidget(p) {
+    var mine = S.rated[p.id] || 0;
+    var box = el("div", "rateme");
+    box.innerHTML = '<span class="rl">' + (mine ? "You rated this" : "Been there? Rate it") + '</span>';
+    var stars = el("div", "rstars");
+    stars.setAttribute("role", "radiogroup");
+    stars.setAttribute("aria-label", "Your rating for " + p.n + ", out of 5");
+    var btns = [];
+    for (var i = 1; i <= 5; i++) (function (v) {
+      var b = el("button", v <= mine ? "on" : null, "★");
+      b.type = "button";
+      b.setAttribute("role", "radio");
+      b.setAttribute("aria-checked", String(v === mine));
+      b.setAttribute("aria-label", v + (v === 1 ? " star" : " stars"));
+      b.tabIndex = (mine ? v === mine : v === 1) ? 0 : -1;
+      b.addEventListener("click", function (e) {
+        e.stopPropagation();
+        setRating(p.id, v === mine ? 0 : v);
+      });
+      b.addEventListener("keydown", function (e) {
+        var d = e.key === "ArrowRight" || e.key === "ArrowUp" ? 1
+              : e.key === "ArrowLeft" || e.key === "ArrowDown" ? -1 : 0;
+        if (!d) return;
+        e.preventDefault(); e.stopPropagation();
+        var next = Math.min(5, Math.max(1, (mine || v) + d));
+        setRating(p.id, next);
+        var card = document.getElementById("p-" + p.id);
+        var tgt = card && card.querySelectorAll(".rstars button")[next - 1];
+        if (tgt) tgt.focus();
+      });
+      btns.push(b); stars.appendChild(b);
+    })(i);
+    box.appendChild(stars);
+    if (mine) {
+      var c = el("button", "clearrate", "clear");
+      c.type = "button";
+      c.addEventListener("click", function (e) { e.stopPropagation(); setRating(p.id, 0); });
+      box.appendChild(c);
+    }
+    return box;
+  }
+
+  /* --- The suggestion form ----------------------------------------------- */
+  (function () {
+    var form = $("#suggestForm");
+    if (!form) return;
+    var nameEl = $("#sName"), whereEl = $("#sWhere"), whyEl = $("#sWhy"), whoEl = $("#sWho");
+
+    function clean(v, max) {
+      return String(v || "").replace(/\s+/g, " ").trim().slice(0, max);
+    }
+    function message() {
+      var n = clean(nameEl.value, 90);
+      if (!n) return null;
+      var lines = ["A place for the guide: " + n];
+      var w = clean(whereEl.value, 90);
+      if (w) lines.push("Where: " + w);
+      var y = clean(whyEl.value, 700);
+      if (y) lines.push("Why: " + y);
+      var who = clean(whoEl.value, 60);
+      lines.push(who ? "From: " + who + ", staying at Somewhere Nice"
+                     : "From a guest at Somewhere Nice");
+      return lines.join("\n");
+    }
+    function complain(bad) {
+      $("#f-name").classList.toggle("bad", bad);
+      $("#e-name").hidden = !bad;
+      if (bad) nameEl.focus();
+    }
+    nameEl.addEventListener("input", function () { if (nameEl.value.trim()) complain(false); });
+
+    function send(how) {
+      var m = message();
+      if (!m) { complain(true); return; }
+      complain(false);
+      open_(how, "A place for the guide", m);
+    }
+    $("#sendWa").addEventListener("click", function () { send("wa"); });
+    $("#sendMail").addEventListener("click", function () { send("mail"); });
+    form.addEventListener("submit", function (e) { e.preventDefault(); send("wa"); });
+  })();
+
+  /* A mailto body has to stay well inside what browsers and mail clients will
+     carry, so the message is capped rather than silently truncated by them. */
+  function open_(how, subject, body) {
+    var b = body.length > 1600 ? body.slice(0, 1580) + "\n…(trimmed)" : body;
+    var url = how === "wa"
+      ? "https://wa.me/" + WA + "?text=" + encodeURIComponent(b)
+      : "mailto:" + MAILTO + "?subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(b);
+    window.open(url, "_blank", "noopener");
+  }
+
+  /* --- What the guest has rated ------------------------------------------ */
+  function ratedList() {
+    return Object.keys(S.rated).map(function (id) {
+      var p = PLACES.filter(function (x) { return x.id === id; })[0];
+      return p ? { p: p, v: S.rated[id] } : null;
+    }).filter(Boolean).sort(function (a, b) { return b.v - a.v; });
+  }
+  function renderRatings() {
+    var box = $("#ratingsBox"), list = $("#ratingsList");
+    if (!box) return;
+    var rows = ratedList();
+    box.hidden = !rows.length;
+    if (!rows.length) return;
+    $("#ratingsHead").textContent = "You have rated " + rows.length +
+      (rows.length === 1 ? " place" : " places");
+    list.textContent = "";
+    rows.forEach(function (r) {
+      list.appendChild(el("li", null,
+        '<span class="nm">' + r.p.n + '</span>' +
+        '<span class="sc" aria-label="' + r.v + ' out of 5">' +
+          "★".repeat(r.v) + "☆".repeat(5 - r.v) + '</span>'));
+    });
+  }
+  function ratingsMessage() {
+    var rows = ratedList();
+    if (!rows.length) return null;
+    return ["Ratings from a guest at Somewhere Nice:"].concat(rows.map(function (r) {
+      return r.v + "/5  " + r.p.n;
+    })).join("\n");
+  }
+  (function () {
+    var wa = $("#rateWa"), ml = $("#rateMail"), cl = $("#rateClear");
+    if (!wa) return;
+    wa.addEventListener("click", function () {
+      var m = ratingsMessage(); if (m) open_("wa", "Ratings from a guest", m);
+    });
+    ml.addEventListener("click", function () {
+      var m = ratingsMessage(); if (m) open_("mail", "Ratings from a guest", m);
+    });
+    cl.addEventListener("click", function () {
+      if (!window.confirm("Clear every rating you have given? This cannot be undone.")) return;
+      S.rated = {}; saveRatings(); renderList(); renderRatings();
+    });
+  })();
   /* --- The maps --------------------------------------------------------- */
   var VIEWS = {
     ghana: { lon0:-3.35, lon1:1.30, lat0:4.40, lat1:11.45, w:660, h:1029, rings:[200,500] },
@@ -2488,7 +2764,7 @@ table.cal tr.is-now .mon{font-weight:600}
       ? v.length + (v.length === 1 ? " place matches" : " places match") + " what you picked"
       : v.length + " places fit " + span + ", our pick first";
     $("#clearBtn").hidden = !S.tags.length;
-    renderList(); renderMap(); renderTrip(); renderBar();
+    renderList(); renderMap(); renderTrip(); renderBar(); renderRatings();
   }
   var countEl = document.getElementById("countPlaces");
   if (countEl) countEl.textContent = PLACES.length;
