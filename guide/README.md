@@ -9,22 +9,26 @@ Open it in a browser and it is exactly what goes live.
 
 It stays one page on purpose. The offline promise below only holds because
 everything arrives in a single load, so instead of splitting it up, the page is
-folded down: five sections, four menu items, and the reference material closed
-until someone opens it.
+folded down. The rule throughout: **a thing is a name, a sentence and three
+facts until somebody asks for more.**
 
 | Section | What is in it |
 | --- | --- |
-| **Plan** | The month you are in, then a fork: follow a route, or choose by interest. One or the other, never both on screen at once. |
-| **Places** | The nine we would send you to first, with a button to open all of them. Choosing an interest re-ranks and reveals the rest. |
-| **Map** | Accra and Ghana, drawn from real coordinates. |
-| **Practical** | Three closed folds: when to come, cash and health, ground rules. Reached from the **Practical** dropdown in the menu, which opens the right fold for you. |
-| **My trip** | The basket, the tally and the shareable link. |
+| **The question** | "Where should you go today?" and the ten interests as tiles. Days, budget and pace fold away behind a link, because most people never touch them. |
+| **Places** | The eight we would send you to first, then a button for all 73. A card closed is a name, one sentence and `3 km away · half a morning · GH₵ 20 fares`. Tapping it gives the write-up, the transport block, the costs and the actions. |
+| **Map** | Accra and Ghana, drawn from real coordinates. Tapping a pin fills the panel beside the map, or a sheet over it on a phone. It never moves the reader down the page. |
+| **Routes** | The seven loops, day by day, each opening into a timeline of legs. |
+| **Practical** | Three closed folds: when to come, cash and health, ground rules. |
+| **My trip** | The basket, the tally and the shareable link. A bar slides up from the bottom the moment something is added, so the page never carries a section that is empty most of the time. |
+
+Four menu items, no dropdown, no dot rail, no contact strip, no stat boxes.
+Red appears in exactly one place: anything open around the clock.
 
 ## What it does that a printed sheet cannot
 
 | Feature | Why it is there |
 | --- | --- |
-| **Two ways in** | Under **Plan**, a guest picks a lane. *Follow a route* lists the seven loops. *Choose by interest* opens the picker: ten interests, a trip length, a budget and a pace, scored in combination, so a surfer and a Pan-Africanist get different lists from the same page. The choice is remembered in `localStorage` under `sn-plan`. |
+| **Interest tiles** | Ten interests, a trip length, a budget and a pace, scored in combination, so a surfer and a Pan-Africanist get different lists from the same page. Tapping a tile re-ranks everything underneath it. |
 | **Two maps** | An Accra map and a Ghana map, drawn from real coordinates. The gold star is the hostel; the dashed rings are 2, 5, 10 and 20 km from the front gate, so "is this a walk or a bus?" is answered by looking. Both zoom and pan: buttons, scroll wheel, double-tap and pinch. Tapping a pin fills the panel beside the map, and on a phone that panel opens as a sheet over the map with a close button. It never moves the reader down the page. |
 | **Distances that are computed** | Nothing says "about 30 minutes away". Every card carries a real great-circle distance from `HOME`, calculated in the browser. Move the hostel and every number moves with it. |
 | **Getting there from *our gate*** | Every place has a transport line naming the station to walk to, what to shout at the mate, and the fare. This is the part guests actually ask reception for, and the part no other guide has. |
@@ -54,7 +58,7 @@ Everything visual is taken from hostelaccra.com rather than invented.
 | Dark band | `#201E1A`, the colour of the booking bar, used for the live strip, the transport blocks and the footer |
 | Type | Open Sans for everything, light at display sizes; Lora for section titles, as on the Philosophy section |
 | Buttons | Thin outlined rectangles with square corners, filling on hover |
-| Header | The contact strip, then the white bar with the seal left and the menu right, active item in gold, Book now and the two social icons. Four items: Plan, Places, Map, and a Practical dropdown |
+| Header | One row: the seal and wordmark left, four links and **Book a bed** right, the section you are in underlined in gold |
 | Rail | The dot column down the right, tracking the section you are in |
 
 The wordmark is lowercase, always: **somewhere nice**.
