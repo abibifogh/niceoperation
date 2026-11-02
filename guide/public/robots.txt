@@ -1,5 +1,2 @@
 User-agent: *
 Allow: /
-
-# A design draft, not part of the guide.
-Disallow: /mockup.html
