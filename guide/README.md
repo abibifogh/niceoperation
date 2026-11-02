@@ -38,10 +38,15 @@ Red appears in exactly one place: anything open around the clock.
 | **Seven routes** | The loops guests keep recommending to each other, day by day, with the hops and fares between them. The shortest is a single day in Accra, timed hour by hour. |
 | **Nearby** | Licensed forex bureaux, four sets of bank machines from the ones at the Société Générale head office five minutes away out to the mall that always works, the walk-in clinic three streets away, the hospitals with real 24-hour emergency departments, and the pharmacy that never closes. Distances and walking times computed from the gate, and the map links search by name so they land on the right door even where a coordinate is approximate. An entry can set `note_only:true` to render as advice rather than a destination: no distance, no map link, and it sorts to the end of its group. Lives in the `NEARBY` array. |
 | **Open all night** | Any hospital or chemist that runs 24 hours wears a red badge with a beating dot, a red heading and a red edge, so it is findable by scanning rather than reading. Set `open24:true` on a `NEARBY` entry. The beat stops under `prefers-reduced-motion`, and the badge prints as an outline rather than a block of red. |
+| **Rate a place** | Five stars in any opened card. The rating is the guest's own: it lives in `localStorage` under `sn-rated`, shows on the closed card as *you gave it ★★★★*, and goes nowhere until they choose to send it. Arrow keys work, because the control is a real radio group. |
+| **Suggest a place** | A short form under *Found somewhere good?*. Pressing send opens WhatsApp or the guest's mail app with the message already written; the page itself posts nothing. Reception reads it and decides whether the place goes in. |
 | **Ground rules** | Money, tro-tros, stations, taxis, paperwork, health, phones, safety, haggling, manners, food, packing and costs. Plus twelve words of Twi, Ga and Ewe. |
 
 It works offline. Once the page has loaded it makes **no network request of any
-kind**: Open Sans and Lora are embedded as subset WOFF2 data URIs, and the
+kind**, including when a guest rates a place or suggests one: a rating is
+written to their own phone, and a suggestion is handed to WhatsApp or their
+mail app as a prepared message for them to send. Nothing is posted from the
+page and nothing about a guest is stored anywhere but their own browser: Open Sans and Lora are embedded as subset WOFF2 data URIs, and the
 seals and both icons are base64 data URIs. That is deliberate. Guests read this on one bar of signal in a
 tro-tro, and on hostel wi-fi that is doing its best.
 
@@ -306,6 +311,17 @@ a prompt about the other.
 It is a single self-contained file. It can equally be dropped into
 hostelaccra.com as a page, put in a subfolder, or emailed to a guest as an
 attachment that still works with the plane's wi-fi off.
+
+### Ratings that everybody can see
+
+Guest ratings are currently private to the guest. Showing an average on each
+card, the way a review site does, needs somewhere to keep them, which means a
+Cloudflare Worker with a D1 database behind `exploregh`, a moderation queue,
+and rate limiting on a public write endpoint pointed at the hostel's own
+domain. All of that is buildable and none of it is built. Two things to weigh
+before it is: the guide's whole claim is that a person who works here went and
+looked, which a crowd average quietly replaces; and an open endpoint invites
+the spam that an unattended one collects.
 
 ## What is deliberately not here
 
