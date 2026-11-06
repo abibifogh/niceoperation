@@ -40,6 +40,7 @@ Red appears in exactly one place: anything open around the clock.
 | **Open all night** | Any hospital or chemist that runs 24 hours wears a red badge with a beating dot, a red heading and a red edge, so it is findable by scanning rather than reading. Set `open24:true` on a `NEARBY` entry. The beat stops under `prefers-reduced-motion`, and the badge prints as an outline rather than a block of red. |
 | **Rate a place** | Five stars in any opened card. The rating is the guest's own: it lives in `localStorage` under `sn-rated`, shows on the closed card as *you gave it ★★★★*, and goes nowhere until they choose to send it. Arrow keys work, because the control is a real radio group. |
 | **Suggest a place** | A short form under *Found somewhere good?*. Pressing send opens WhatsApp or the guest's mail app with the message already written; the page itself posts nothing. Reception reads it and decides whether the place goes in. |
+| **Drivers we trust** | Name, car, the trips they like, what they will bend on, languages, how long they have been on the list, and typical prices. Call and WhatsApp, the WhatsApp message already written. A destination row built from the drivers' own routes filters them. Managed from the portal; the section hides itself when the list is empty. |
 | **Ground rules** | Money, tro-tros, stations, taxis, paperwork, health, phones, safety, haggling, manners, food, packing and costs. Plus twelve words of Twi, Ga and Ewe. |
 
 It works offline. Once the page has loaded it makes **no network request of any
@@ -322,6 +323,33 @@ domain. All of that is buildable and none of it is built. Two things to weigh
 before it is: the guide's whole claim is that a person who works here went and
 looked, which a crowd average quietly replaces; and an open endpoint invites
 the spam that an unattended one collects.
+
+## The portal
+
+`/admin` is a two-tab page served by the Worker and locked behind Cloudflare
+Access: **Traffic**, and **Drivers**. Setting it up is `PORTAL-SETUP.md`.
+
+The architecture is worth understanding before changing anything, because it
+is what lets the guide keep its promises while becoming editable.
+
+- `src/worker.js` sits in front of the static file. On the way out it swaps
+  the live driver list into the page between two markers, so the guest still
+  receives **one document with nothing to fetch**. Editable and offline-first
+  at the same time, which a client-side fetch would have cost.
+- No database, or an unreachable one, means the page ships exactly as it is
+  and the drivers section hides itself. The portal is the only thing that
+  stops working. That is deliberate: the guide outranks the portal.
+- Counting is one beacon per visit to our own domain. No cookie, no
+  identifier, no third party, batched and sent on the way out, and the whole
+  thing wrapped so a failure is invisible. Only six kinds of event are
+  accepted and keys are capped at 64 characters, because a public write
+  endpoint that takes anything is a public endpoint for rubbish.
+- Access signs every request it lets through, and the Worker verifies that
+  signature itself rather than trusting the path. With nothing configured it
+  **refuses everybody**, so a mistake in the Access rules cannot leave the
+  portal open.
+- A driver marked *do not print their number* has no number in the HTML at
+  all, rather than one hidden by CSS.
 
 ## What is deliberately not here
 

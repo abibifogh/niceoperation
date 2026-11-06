@@ -11,24 +11,26 @@
   // Build command: (leave empty)
   // Deploy command: npx wrangler deploy --config guide/wrangler.jsonc
   "name": "exploregh",
-  "compatibility_date": "2025-01-01",
+  "compatibility_date": "2025-09-15",
 
-  // Assets only. There is no server, no build and no framework — the guide is
-  // one HTML file with its data, styles, fonts and behaviour inside it.
+  // The guide is still one static file in ./public. The Worker in front of it
+  // does three things the file cannot: it drops the live driver list into the
+  // page before sending it, so the guest still gets one document with nothing
+  // to fetch; it counts what guests look at; and it serves the portal at
+  // /admin. Everything else is handed straight to the assets.
+  "main": "./src/worker.js",
   "assets": {
-    "directory": "./public"
+    "directory": "./public",
+    "binding": "ASSETS",
+    // The Worker has to see "/" before the file is served, or it cannot put
+    // the drivers in. Everything it does not handle it passes to ASSETS.
+    "run_worker_first": true
   },
 
   // The subdomain. Declaring it here rather than clicking it into the
   // dashboard means `wrangler deploy` creates the DNS record and orders the
   // certificate itself, and that the address lives in version control next to
   // the thing it points at.
-  //
-  // niceoperation.com is already a zone in this Cloudflare account — it is
-  // what niceops-site serves — so this hostname is free to claim. The two
-  // Workers do not collide: niceops-site holds the custom domains
-  // niceoperation.com and www.niceoperation.com, which are specific hostnames
-  // rather than a wildcard, and this one holds exploregh.niceoperation.com.
   "routes": [
     { "pattern": "exploregh.niceoperation.com", "custom_domain": true }
   ],
@@ -37,5 +39,31 @@
   // worth having: it is the address to test against before the DNS record has
   // finished propagating, and the fallback if the custom domain is ever
   // misconfigured.
-  "workers_dev": true
+  "workers_dev": true,
+
+  // ───────────────────────────────────────────────────────────────────────
+  // THE PORTAL. Everything below is switched off until the two Cloudflare
+  // things in PORTAL-SETUP.md exist. Until then the Worker notices there is
+  // no database, serves the guide exactly as before, hides the drivers
+  // section because it is empty, and answers /admin with a line saying it is
+  // not set up yet. Nothing breaks by being deployed early.
+  //
+  // Step 1 of PORTAL-SETUP.md gives you a database id. Paste it below and
+  // uncomment the three lines:
+  //
+  // "d1_databases": [
+  //   { "binding": "DB", "database_name": "exploregh-data", "database_id": "PASTE-IT-HERE" }
+  // ],
+  //
+  // Step 2 gives you a team domain and an application audience tag. Neither
+  // is a secret: they identify the login, they do not grant it. Paste them in
+  // and uncomment:
+  //
+  // "vars": {
+  //   "ACCESS_TEAM_DOMAIN": "yourteam.cloudflareaccess.com",
+  //   "ACCESS_AUD": "PASTE-THE-AUDIENCE-TAG-HERE"
+  // },
+  // ───────────────────────────────────────────────────────────────────────
+
+  "observability": { "enabled": true }
 }
