@@ -566,6 +566,70 @@ table.cal tr.is-now .mon{font-weight:600}
   .badge24 .beat{display:none}
   a[href^="http"]::after{content:" (" attr(href) ")";font-size:9pt;color:#555}
 }
+/* ── drivers ────────────────────────────────────────────────────────────
+   The only list on the page about people rather than places, so it reads
+   like a card of introductions: who turns up, in what, going where. */
+.mockbar{
+  background:#FFF4D6;border:1px solid #E8D49A;border-radius:8px;
+  padding:.85rem 1.1rem;margin-bottom:1.6rem;font-size:.9rem;color:#5B4A1E;
+}
+.mockbar b{color:#3F3312}
+.dfilter{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:1.6rem 0 0}
+.dfilter button{
+  background:#fff;border:1.5px solid var(--line);border-radius:100px;cursor:pointer;
+  padding:.4rem .95rem;font-size:.9rem;color:var(--ink-2);
+}
+.dfilter button:hover{border-color:var(--gold)}
+.dfilter button[aria-pressed="true"]{background:var(--brown);border-color:var(--brown);color:#fff;font-weight:600}
+.drivers{display:grid;gap:14px;grid-template-columns:1fr;align-items:start;margin-top:1.6rem}
+@media(min-width:760px){ .drivers{grid-template-columns:1fr 1fr} }
+.driver{border:1px solid var(--line);border-radius:var(--r);background:#fff;padding:1.25rem;transition:box-shadow .18s ease}
+.driver:hover{box-shadow:var(--lift)}
+.dhead{display:flex;align-items:flex-start;gap:.8rem}
+.dhead h3{flex:1;min-width:0;font-size:1.25rem}
+.driver .car{font-size:.9rem;color:var(--ink-2);margin-top:.15rem}
+.driver .since{font-size:.8rem;color:var(--ink-3);margin-top:.1rem}
+.runs{display:flex;gap:5px;flex-wrap:wrap;margin-top:.85rem;list-style:none}
+.runs li{background:var(--sunk);border-radius:100px;padding:.2rem .65rem;font-size:.8rem;color:var(--ink-2)}
+.runs li.hit{background:var(--brown);color:#fff;font-weight:600}
+.driver .flex{font-size:.93rem;color:var(--ink-2);margin-top:.85rem}
+.driver .langs{font-size:.84rem;color:var(--ink-3);margin-top:.6rem}
+.rates{list-style:none;margin-top:.9rem;border-top:1px solid var(--line-2);padding-top:.7rem;display:grid;gap:.3rem}
+.rates li{display:flex;gap:1rem;font-size:.86rem;color:var(--ink-2)}
+.rates .w{flex:1;min-width:0}
+.rates .p{font-weight:600;color:var(--brown);white-space:nowrap}
+.dacts{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:1.1rem}
+.viaus{
+  margin-top:1.1rem;background:var(--sunk);border-radius:8px;
+  padding:.75rem .9rem;font-size:.88rem;color:var(--ink-2);line-height:1.55;
+}
+.viaus b{color:var(--brown)}
+.dnote{
+  background:var(--sunk);border-left:3px solid var(--gold);border-radius:8px;
+  padding:1rem 1.2rem;margin-top:2rem;font-size:.92rem;color:var(--ink-2);
+}
+.dnote b{color:var(--brown)}
+.dnote ul{list-style:none;margin-top:.6rem;display:grid;gap:.4rem}
+.dnote li{padding-left:.9rem;position:relative}
+.dnote li::before{content:"";position:absolute;left:0;top:.62rem;width:4px;height:4px;border-radius:50%;background:var(--line-3)}
+@media print{ .dfilter,.dacts{display:none !important} }
+/* Five nav items plus "Book a bed" overflows a phone, so the button loses its
+   last two words and the nav tightens. These must come after the 430px block
+   in the main stylesheet: same specificity, so the later one wins. */
+.bk-s{display:none}
+@media(max-width:560px){
+  .bk-l{display:none}
+  .bk-s{display:inline}
+  .top nav{gap:.7rem}
+}
+@media(max-width:380px){
+  .top-in{padding:.5rem 10px;gap:.45rem}
+  .brand img{width:34px;height:34px}
+  .top nav{gap:.5rem}
+  .top nav a{font-size:.74rem}
+  .booknow{padding:.4rem .55rem;font-size:.76rem}
+}
+.top nav a[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -578,9 +642,10 @@ table.cal tr.is-now .mon{font-weight:600}
       <a href="#places">Places</a>
       <a href="#map">Map</a>
       <a href="#routes">Routes</a>
+      <a href="#drivers">Drivers</a>
       <a href="#practical">Practical</a>
     </nav>
-    <a class="booknow" href="https://hostelaccra.com/" target="_blank" rel="noopener">Book a bed</a>
+    <a class="booknow" href="https://hostelaccra.com/" target="_blank" rel="noopener"><span class="bk-l">Book a bed</span><span class="bk-s">Book</span></a>
   </div>
 </header>
 
@@ -926,6 +991,32 @@ table.cal tr.is-now .mon{font-weight:600}
             is worth keeping on the list and what is not.</p>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="drivers" hidden>
+    <div class="wrap">
+      <h2>Drivers we trust</h2>
+      <p class="lede">Not a taxi rank. These are the drivers guests come back and thank us for,
+      and we have been sending people to most of them for years.</p>
+
+      <div class="dfilter" id="dFilter" role="group" aria-label="Where are you going?"></div>
+      <div class="drivers" id="driversOut"></div>
+
+      <div class="dnote">
+        <b>Before you get in, whoever is driving.</b>
+        <ul>
+          <li>Agree the price out loud before the engine starts, and say whether it is one way or
+          includes the waiting. Nobody here minds being asked; being asked afterwards is the part
+          that goes wrong.</li>
+          <li>Long trips are cheaper by the day than by the hour. Say what you want to see and let
+          the driver tell you what fits.</li>
+          <li>Fuel is normally in the price. Park fees, tolls and the driver's room on an
+          overnight trip usually are not. Ask.</li>
+          <li>If anything goes wrong, ring reception before you ring anybody else. These are our
+          people and we would rather hear it from you than from them.</li>
+        </ul>
       </div>
     </div>
   </section>
@@ -1875,6 +1966,7 @@ table.cal tr.is-now .mon{font-weight:600}
       var i = S.tags.indexOf(t.k);
       if (i > -1) S.tags.splice(i, 1); else S.tags.push(t.k);
       b.setAttribute("aria-pressed", i > -1 ? "false" : "true");
+      if (i < 0) note("interest", t.k);
       S.showAll = false;
       render();
     });
@@ -1952,6 +2044,55 @@ table.cal tr.is-now .mon{font-weight:600}
     else c.sort(function (a, b) { return score(b) - score(a); });
     return c;
   }
+  /* --- What guests looked at ---------------------------------------------
+     One small beacon per visit, to our own domain, with no cookie, no
+     identifier and no third party. Events are collected as they happen and
+     sent once, when the guest leaves or after a few seconds, so a page of
+     browsing costs one request rather than thirty.
+
+     Everything below fails silently. If the beacon cannot be sent the guide
+     carries on exactly as it did before, which is the whole point. */
+  var note = (function () {
+    var q = [], sent = {}, timer = null, gone = false;
+
+    function flush() {
+      if (!q.length || gone) return;
+      var body = JSON.stringify({ e: q });
+      q = [];
+      try {
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon("/api/hit", new Blob([body], { type: "application/json" }));
+        } else {
+          fetch("/api/hit", { method: "POST", body: body, keepalive: true,
+                              headers: { "content-type": "application/json" } }).catch(function () {});
+        }
+      } catch (e) { /* offline, blocked, private mode: never mind */ }
+    }
+
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") flush();
+    });
+    window.addEventListener("pagehide", flush);
+
+    return function (kind, key) {
+      var id = kind + ":" + (key || "-");
+      if (sent[id]) return;          /* once per visit per thing */
+      sent[id] = 1;
+      q.push({ k: kind, v: key || "-" });
+      if (q.length >= 30) { flush(); return; }
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(flush, 6000);
+    };
+  })();
+
+  note("visit");
+
+  /* Drivers. Empty here on purpose: the Worker replaces everything between
+     the two markers with the live list from the portal before the page is
+     sent, so the guest still receives one document with nothing to fetch.
+     If the database is unreachable the page ships as it is and the section
+     hides itself, which is the right failure: no section beats a broken one. */
+  var DRIVERS = /*__DRIVERS__*/[]/*__END_DRIVERS__*/;
   /* --- The list --------------------------------------------------------- */
   var listOut = $("#listOut");
 
@@ -2022,7 +2163,8 @@ table.cal tr.is-now .mon{font-weight:600}
       det.hidden = !open;
       head.setAttribute("aria-expanded", String(open));
       a.classList.toggle("is-open", open);
-      if (open) { S.open[p.id] = 1; select(p.id, false); } else { delete S.open[p.id]; }
+      if (open) { S.open[p.id] = 1; note("place", p.id); select(p.id, false); }
+      else { delete S.open[p.id]; }
     });
     a.querySelector(".js-trip").addEventListener("click", function (e) {
       e.stopPropagation();
@@ -2538,6 +2680,96 @@ table.cal tr.is-now .mon{font-weight:600}
       renderMap();
     });
   });
+  /* --- Drivers ----------------------------------------------------------- */
+  (function () {
+    var out = $("#driversOut"), bar = $("#dFilter");
+    var sec = document.getElementById("drivers");
+    var navLink = document.querySelector('.top nav a[href="#drivers"]');
+    if (!out || !sec) return;
+    if (!DRIVERS.length) {
+      /* Nobody on the list yet. Better no section than an empty one. */
+      sec.hidden = true;
+      if (navLink) navLink.hidden = true;
+      return;
+    }
+    sec.hidden = false;
+    if (navLink) navLink.hidden = false;
+    var pick = "all";
+
+    /* The destinations, in the order the drivers themselves list them, so the
+       row reads as the trips people actually ask for. */
+    var runs = [];
+    DRIVERS.forEach(function (d) {
+      d.runs.forEach(function (r) { if (runs.indexOf(r) < 0) runs.push(r); });
+    });
+
+    [{ k:"all", n:"Anywhere" }].concat(runs.map(function (r) { return { k:r, n:r }; }))
+      .forEach(function (o) {
+        var b = el("button", null, o.n);
+        b.type = "button";
+        b.setAttribute("aria-pressed", String(pick === o.k));
+        b.addEventListener("click", function () {
+          pick = o.k;
+          Array.prototype.forEach.call(bar.children, function (c) { c.setAttribute("aria-pressed", "false"); });
+          b.setAttribute("aria-pressed", "true");
+          draw();
+        });
+        bar.appendChild(b);
+      });
+
+    function card(d) {
+      var a = el("article", "driver");
+      a.innerHTML =
+        '<div class="dhead">' +
+          '<div><h3>' + d.n + '</h3>' +
+            '<p class="car">' + d.car + '</p>' +
+            '<p class="since">On our list since ' + d.since + '</p></div>' +
+          '<span class="stars" aria-label="We vouch for this driver, ' + d.star + ' out of 3">' +
+            "★".repeat(d.star) + '</span>' +
+        '</div>' +
+        '<ul class="runs">' + d.runs.map(function (r) {
+          return '<li' + (pick === r ? ' class="hit"' : '') + '>' + r + '</li>';
+        }).join("") + '</ul>' +
+        '<p class="flex">' + d.flex + '</p>' +
+        '<p class="langs">Speaks ' + d.langs + '</p>' +
+        (d.rates && d.rates.length
+          ? '<ul class="rates">' + d.rates.map(function (r) {
+              return '<li><span class="w">' + r.w + '</span><span class="p">' + r.p + '</span></li>';
+            }).join("") + '</ul>'
+          : "") +
+        (d.via || !d.ph
+          /* Some drivers would rather not have their number on a public page,
+             which is their call to make, not ours. */
+          ? '<p class="viaus"><span><b>Ask reception.</b> This one would rather we passed the ' +
+            'number on than published it. Tell us when you want to go and we will put you in touch.</span></p>'
+          : '<div class="dacts">' +
+              '<a class="mini btn--primary js-dr" data-d="' + d.id + '" href="tel:' + d.ph.replace(/\s/g, "") + '">Call ' +
+                d.n.split(" ")[0] + '</a>' +
+              (d.wa ? '<a class="mini js-dr" data-d="' + d.id + '" target="_blank" rel="noopener noreferrer" href="https://wa.me/' + d.wa +
+                '?text=' + encodeURIComponent("Hello " + d.n.split(" ")[0] +
+                ", I am staying at Somewhere Nice in Kokomlemle and reception gave me your number.") +
+                '">WhatsApp</a>' : "") +
+              '<span class="langs" style="margin-top:.55rem;width:100%">' + d.ph + '</span>' +
+            '</div>');
+      return a;
+    }
+
+    function draw() {
+      var list = pick === "all" ? DRIVERS
+        : DRIVERS.filter(function (d) { return d.runs.indexOf(pick) > -1; });
+      out.textContent = "";
+      if (!list.length) {
+        out.appendChild(el("div", "empty", "None of ours does that run. Ask reception and we " +
+          "will find somebody who does."));
+        return;
+      }
+      list.forEach(function (d) { out.appendChild(card(d)); });
+      Array.prototype.forEach.call(out.querySelectorAll(".js-dr"), function (a) {
+        a.addEventListener("click", function () { note("driver", a.dataset.d); });
+      });
+    }
+    draw();
+  })();
   /* --- Nearby ----------------------------------------------------------- */
   var nearbyOut = $("#nearbyOut");
   NEARBY_GROUPS.forEach(function (g) {
@@ -2696,7 +2928,7 @@ table.cal tr.is-now .mon{font-weight:600}
   tickClock(); setInterval(tickClock, 30000);
   /* --- The menu, and the fold a link points at --------------------------- */
   (function () {
-    var SECTIONS = ["places", "map", "routes", "practical"];
+    var SECTIONS = ["places", "map", "routes", "drivers", "practical"];
     var targets = [];
     SECTIONS.forEach(function (id) {
       var node = document.getElementById(id);
@@ -2710,6 +2942,7 @@ table.cal tr.is-now .mon{font-weight:600}
         var best = null, bestR = 0;
         targets.forEach(function (t) { var r = seen[t.id] || 0; if (r > bestR) { bestR = r; best = t.id; } });
         targets.forEach(function (t) { t.link.classList.toggle("is-here", t.id === best); });
+        if (best) note("section", best);
       }, { threshold: [0, .12, .3, .55, .8], rootMargin: "-20% 0px -45% 0px" });
       targets.forEach(function (t) { io.observe(t.node); });
     }
